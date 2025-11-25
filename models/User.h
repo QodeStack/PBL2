@@ -19,6 +19,7 @@ public:
     virtual ~User() = default;
 
     std::string getUsername() const;
+    std::string getPassword() const; // THÊM ĐỂ LƯU MẬT KHẨU VÀO FILE TEXT
     Role getRole() const;
     bool checkPassword(const std::string& pwd) const;
 };

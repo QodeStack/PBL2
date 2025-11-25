@@ -9,6 +9,7 @@
 #include "controllers/AdminController.h"
 #include "controllers/CustomerController.h"
 #include "views/MenuView.h"
+#include "storage/DataStorage.h"  
 
 int main()
 {
@@ -18,6 +19,16 @@ int main()
     AdminController adminController;
     CustomerController customerController;
     MenuView view;
+
+    // 🌟 Load dữ liệu từ file (nếu có)
+    const std::string PITCH_FILE   = "data/pitches.txt";
+    const std::string BOOKING_FILE = "data/bookings.txt";
+    const std::string USERS_FILE = "data/users.txt";
+
+    loadPitchesFromFile(pitches,PITCH_FILE );
+    loadBookingsFromFile(bookings,BOOKING_FILE);
+    authController.loadCustomersFromFile(USERS_FILE);
+
 
     std::shared_ptr<User> currentUser = nullptr;
     bool running = true;
@@ -131,6 +142,11 @@ int main()
         }
     }
 
+    // 🌟 Trước khi thoát, lưu lại dữ liệu
+    savePitchesToFile(pitches, PITCH_FILE);
+    saveBookingsToFile(bookings, BOOKING_FILE);
+    authController.saveCustomersToFile(USERS_FILE); 
+    
     std::cout << "Tam biet!\n";
     return 0;
 }
