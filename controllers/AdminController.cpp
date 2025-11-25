@@ -11,12 +11,7 @@ void AdminController::listPitches(const std::vector<Pitch>& pitches) const {
         std::cout << "ID: " << p.getId()
                   << " | Ten: " << p.getName()
                   << " | Gia: " << p.getPrice()
-                  << " | Loai san: " << p.getSize() << " nguoi"
-                  << " | Trang thai: " << (p.getIsBooked() ? "Da dat" : "Trong");
-        if (p.getIsBooked()) {
-            std::cout << " | Khach: " << p.getBookedBy()
-             << " | Thoi gian dat: " << p.getBookedTime(); //Hiển thị thời gian đặt 
-        }
+                  << " | Loai san: " << p.getSize() << " nguoi";
         std::cout << '\n';
     }
 }

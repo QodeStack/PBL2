@@ -1,8 +1,7 @@
 #include "CustomerController.h"
 #include <iostream>
-//// các thư viện để setup thời gian 
-#include <limits> 
-/////
+#include <limits>  // để dùng std::numeric_limits
+
 
 void CustomerController::viewAllPitches(const std::vector<Pitch>& pitches) const {
     std::cout << "\n=== TAT CA SAN ===\n";
@@ -14,71 +13,120 @@ void CustomerController::viewAllPitches(const std::vector<Pitch>& pitches) const
         std::cout << "ID: " << p.getId()
                   << " | Ten: " << p.getName()
                   << " | Gia: " << p.getPrice()
-                  << " | Loai san: " << p.getSize() << " nguoi"
-                  << " | Trang thai: " << (p.getIsBooked() ? "Da dat" : "Trong");
-        if (p.getIsBooked()) {
-            std::cout << " | Khach: " << p.getBookedBy();
-        }
-        std::cout << '\n';
+                  << " | Loai san: " << p.getSize() << " nguoi\n";
     }
 }
 
-void CustomerController::viewFreePitches(const std::vector<Pitch>& pitches) const {
-    std::cout << "\n=== SAN TRONG ===\n";
-    bool found = false;
-    for (const auto& p : pitches) {
-        if (!p.getIsBooked()) {
-            std::cout << "ID: " << p.getId() << " | Ten: " << p.getName() << '\n';
-            found = true;
-        }
-    }
-    if (!found) std::cout << "Khong co san trong.\n";
-}
+void CustomerController::viewFreePitches(const std::vector<Pitch>& pitches,
+                                         const std::vector<Booking>& bookings) const {
+    // Xóa \n còn lại trong buffer trước khi dùng getline
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-void CustomerController::viewBookedPitches(const std::vector<Pitch>& pitches) const {
-    std::cout << "\n=== SAN DA DAT ===\n";
+    std::string timeSlot;
+    std::cout << "Nhap khung gio muon kiem tra (VD: 2025-12-01 18:00-19:00): ";
+    std::getline(std::cin, timeSlot);
+
+    std::cout << "\n=== SAN TRONG O KHUNG GIO " << timeSlot << " ===\n";
     bool found = false;
+
     for (const auto& p : pitches) {
-        if (p.getIsBooked()) {
+        bool occupied = false;
+
+        // Kiểm tra xem sân này có booking nào trùng khung giờ không
+        for (const auto& b : bookings) {
+            if (b.getPitchId() == p.getId() && b.getTimeSlot() == timeSlot) {
+                occupied = true;
+                break;
+            }
+        }
+
+        if (!occupied) {
             std::cout << "ID: " << p.getId()
                       << " | Ten: " << p.getName()
                       << " | Gia: " << p.getPrice()
-                      << " | Loai san: " << p.getSize() << " nguoi"
-                      << " | Khach: " << p.getBookedBy()
-                      << " | Thoi gian dat: " << p.getBookedTime()
-                      << '\n';
+                      << " | Loai san: " << p.getSize() << " nguoi\n";
             found = true;
         }
     }
-    if (!found) std::cout << "Chua co san nao duoc dat.\n";
+
+    if (!found) {
+        std::cout << "Khong co san trong o khung gio nay.\n";
+    }
 }
 
-void CustomerController::bookPitch(std::vector<Pitch>& pitches, const std::string& username) {
+void CustomerController::viewBookedPitches(const std::vector<Pitch>& pitches,
+                                           const std::vector<Booking>& bookings) const {
+    std::cout << "\n=== CAC LICH DAT SAN ===\n";
+
+    if (bookings.empty()) {
+        std::cout << "Chua co lich dat nao.\n";
+        return;
+    }
+
+    for (const auto& b : bookings) {
+        // Tìm thông tin sân tương ứng
+        const Pitch* pitchPtr = nullptr;
+        for (const auto& p : pitches) {
+            if (p.getId() == b.getPitchId()) {
+                pitchPtr = &p;
+                break;
+            }
+        }
+
+        std::cout << "Booking ID: " << b.getId()
+                  << " | San ID: " << b.getPitchId();
+
+        if (pitchPtr) {
+            std::cout << " (" << pitchPtr->getName()
+                      << ", " << pitchPtr->getSize() << " nguoi"
+                      << ", Gia: " << pitchPtr->getPrice() << ")";
+        }
+
+        std::cout << " | Khach: " << b.getCustomerUsername()
+                  << " | Khung gio: " << b.getTimeSlot()
+                  << '\n';
+    }
+}
+
+void CustomerController::bookPitch(const std::vector<Pitch>& pitches,
+                                   std::vector<Booking>& bookings,
+                                   const std::string& username) {
     int id;
     std::cout << "Nhap ID san muon dat: ";
     std::cin >> id;
 
-    for (auto& p : pitches) {
-
+    // Tìm sân theo ID
+    const Pitch* selectedPitch = nullptr;
+    for (const auto& p : pitches) {
         if (p.getId() == id) {
-            if (p.getIsBooked()) {
-                std::cout << "San nay da duoc dat.\n";
-            } else {
-                    // Xóa \n còn dư sau khi nhập id
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            selectedPitch = &p;
+            break;
+        }
+    }
 
-                std::string desiredTime;
-                std::cout << "Nhap thoi gian muon dat (VD: 2025-11-30 18:00): ";
-                std::getline(std::cin, desiredTime);
+    if (!selectedPitch) {
+        std::cout << "Khong tim thay san.\n";
+        return;
+    }
 
-                p.setBooked(true);
-                p.setBookedBy(username);
-                p.setBookedTime(desiredTime);   // 💡 lưu lại thời gian khách muốn đặt
+    // Xóa \n còn lại trong buffer
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-                std::cout << "Dat san thanh cong vao khung gio: " << p.getBookedTime() << "\n";
+    std::string timeSlot;
+    std::cout << "Nhap khung gio muon dat (VD: 2025-12-01 18:00-19:00): ";
+    std::getline(std::cin, timeSlot);
+
+    // Kiểm tra xem sân này ở khung giờ này đã có booking chưa
+    for (const auto& b : bookings) {
+        if (b.getPitchId() == id && b.getTimeSlot() == timeSlot) {
+            std::cout << "Khung gio nay cho san nay da duoc dat. Vui long chon khung gio khac.\n";
             return;
         }
     }
-    std::cout << "Khong tim thay san.\n";
-}
+
+    // Nếu chưa ai đặt -> tạo booking mới
+    bookings.emplace_back(id, username, timeSlot);
+
+    std::cout << "Dat san thanh cong! San " << selectedPitch->getName()
+              << " vao khung gio: " << timeSlot << "\n";
 }
