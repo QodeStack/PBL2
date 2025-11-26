@@ -1,5 +1,6 @@
 #include "AdminController.h"
 #include <iostream>
+#include <limits>   // <-- THÊM DÒNG NÀY
 
 void AdminController::listPitches(const std::vector<Pitch>& pitches) const {
     std::cout << "\n=== DANH SACH SAN ===\n";
@@ -79,4 +80,63 @@ void AdminController::deletePitch(std::vector<Pitch>& pitches) {
         }
     }
     std::cout << "Khong tim thay san.\n";
+}
+
+// ================== HÀM MỚI Ở DƯỚI NÀY ==================
+
+void AdminController::bookPitchOffline(const std::vector<Pitch>& pitches,
+                                       std::vector<Booking>& bookings) {
+    if (pitches.empty()) {
+        std::cout << "Chua co san nao trong he thong.\n";
+        return;
+    }
+
+    int id;
+    std::cout << "\n=== DAT SAN OFFLINE TAI QUAY ===\n";
+    std::cout << "Nhap ID san muon dat: ";
+    std::cin >> id;
+
+    // Tìm sân theo ID
+    const Pitch* selectedPitch = nullptr;
+    for (const auto& p : pitches) {
+        if (p.getId() == id) {
+            selectedPitch = &p;
+            break;
+        }
+    }
+
+    if (!selectedPitch) {
+        std::cout << "Khong tim thay san.\n";
+        return;
+    }
+
+    // Xóa \n còn trong buffer trước khi dùng getline
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    std::string customerName;
+    std::cout << "Nhap ten khach (co the bo trong neu khong can luu ten): ";
+    std::getline(std::cin, customerName);
+    if (customerName.empty()) {
+        customerName = "OFFLINE";
+    }
+
+    std::string timeSlot;
+    std::cout << "Nhap khung gio (VD: 2025-12-01 18:00-20:00)\n";
+    std::cout << "Trong do thoi gian KET THUC la gio tra san: ";
+    std::getline(std::cin, timeSlot);
+
+    // Kiểm tra trùng lịch
+    for (const auto& b : bookings) {
+        if (b.getPitchId() == id && b.getTimeSlot() == timeSlot) {
+            std::cout << "Khung gio nay cho san nay da co lich dat.\n";
+            return;
+        }
+    }
+
+    // Tạo booking mới (username = tên khách hoặc OFFLINE)
+    bookings.emplace_back(id, customerName, timeSlot);
+
+    std::cout << "Dat san OFFLINE thanh cong cho khach: " << customerName
+              << " | San: " << selectedPitch->getName()
+              << " | Khung gio: " << timeSlot << "\n";
 }

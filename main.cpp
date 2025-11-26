@@ -103,6 +103,9 @@ int main()
                 case 4:
                     adminController.deletePitch(pitches);
                     break;
+                case 5:
+                    adminController.bookPitchOffline(pitches, bookings);   // <-- THÊM CASE NÀY
+                    break;
                 case 0:
                     std::cout << "Dang xuat...\n";
                     currentUser.reset();
