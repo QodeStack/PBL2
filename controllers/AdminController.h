@@ -14,6 +14,8 @@ public:
     // 🌟 HÀM MỚI: Admin đặt sân offline tại quầy
     void bookPitchOffline(const std::vector<Pitch>& pitches,
                           std::vector<Booking>& bookings);
+    void checkoutPitch(std::vector<Pitch>& pitches,
+                   std::vector<Booking>& bookings);
 };
 
 #endif // ADMIN_CONTROLLER_H

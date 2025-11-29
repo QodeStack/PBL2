@@ -73,23 +73,49 @@ void loadBookingsFromFile(std::vector<Booking>& bookings, const std::string& fil
 
         std::stringstream ss(line);
         std::string idStr, pitchIdStr, username, timeSlot;
+        std::string startTime, endTime, statusStr, amountStr;
 
+        // Đọc 4 trường cơ bản trước
         if (!std::getline(ss, idStr, ';')) continue;
         if (!std::getline(ss, pitchIdStr, ';')) continue;
         if (!std::getline(ss, username, ';')) continue;
         if (!std::getline(ss, timeSlot, ';')) continue;
 
-        int id = std::stoi(idStr);
+        int id      = std::stoi(idStr);
         int pitchId = std::stoi(pitchIdStr);
 
-        bookings.emplace_back(id, pitchId, username, timeSlot);
+        // Cố đọc thêm các trường mới (có thể không có nếu là format cũ)
+        if (!std::getline(ss, startTime, ';')) startTime = "";
+        if (!std::getline(ss, endTime, ';'))   endTime   = "";
+        if (!std::getline(ss, statusStr, ';')) statusStr = "1"; // default Finished
+        if (!std::getline(ss, amountStr, ';')) amountStr = "0";
+
+        BookingStatus status = (statusStr == "0")
+                               ? BookingStatus::Active
+                               : BookingStatus::Finished;
+        double amount = 0.0;
+        try {
+            amount = std::stod(amountStr);
+        } catch (...) {
+            amount = 0.0;
+        }
+
+        bookings.emplace_back(
+            id,
+            pitchId,
+            username,
+            timeSlot,
+            startTime,
+            endTime,
+            status,
+            amount
+        );
 
         if (id > maxId) maxId = id;
     }
 
     inFile.close();
 
-    // Đặt nextId = maxId + 1 để booking mới không bị trùng ID
     Booking::setNextId(maxId + 1);
 }
 
@@ -101,10 +127,16 @@ void saveBookingsToFile(const std::vector<Booking>& bookings, const std::string&
     }
 
     for (const auto& b : bookings) {
+        int statusInt = (b.getStatus() == BookingStatus::Active) ? 0 : 1;
+
         outFile << b.getId() << ";"
                 << b.getPitchId() << ";"
                 << b.getCustomerUsername() << ";"
-                << b.getTimeSlot()
+                << b.getTimeSlot() << ";"
+                << b.getStartTime() << ";"
+                << b.getEndTime() << ";"
+                << statusInt << ";"
+                << b.getTotalAmount()
                 << "\n";
     }
 

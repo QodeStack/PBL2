@@ -110,6 +110,11 @@ int main()
                     adminController.bookPitchOffline(pitches, bookings);   // <-- THÊM CASE NÀY
                     saveBookingsToFile(bookings, BOOKING_FILE); // ✅ Mới: 
                     break;
+                case 6:
+                    adminController.checkoutPitch(pitches, bookings); 
+                    saveBookingsToFile(bookings, BOOKING_FILE);
+                    savePitchesToFile(pitches, PITCH_FILE);
+                    break;
                 case 0:
                     std::cout << "Dang xuat...\n";
                     currentUser.reset();

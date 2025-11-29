@@ -125,7 +125,15 @@ void CustomerController::bookPitch(const std::vector<Pitch>& pitches,
     }
 
     // Nếu chưa ai đặt -> tạo booking mới
-    bookings.emplace_back(id, username, timeSlot);
+    bookings.emplace_back(
+    id,           // ID sân
+    username,          // tài khoản khách
+    timeSlot,          // ví dụ: "2025-12-01 18:00-20:00"
+    "",                // startTime (online mình không dùng giờ máy, mà tính từ timeSlot)
+    "",                // endTime (chưa cần)
+    BookingStatus::Active,
+    0.0
+);
 
     std::cout << "Dat san thanh cong! San " << selectedPitch->getName()
               << " vao khung gio: " << timeSlot << "\n";
