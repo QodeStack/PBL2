@@ -96,15 +96,19 @@ int main()
                     break;
                 case 2:
                     adminController.createPitch(pitches);
+                    savePitchesToFile(pitches, PITCH_FILE);  // ✅ Mới:
                     break;
                 case 3:
                     adminController.updatePitch(pitches);
+                    savePitchesToFile(pitches, PITCH_FILE);// ✅ Mới:
                     break;
                 case 4:
                     adminController.deletePitch(pitches);
+                     savePitchesToFile(pitches, PITCH_FILE); // ✅ Mới:
                     break;
                 case 5:
                     adminController.bookPitchOffline(pitches, bookings);   // <-- THÊM CASE NÀY
+                    saveBookingsToFile(bookings, BOOKING_FILE); // ✅ Mới: 
                     break;
                 case 0:
                     std::cout << "Dang xuat...\n";
@@ -133,6 +137,7 @@ int main()
                         pitches,
                         bookings,
                         currentUser->getUsername());
+                        saveBookingsToFile(bookings, BOOKING_FILE);
                     break;
                 case 0:
                     std::cout << "Dang xuat...\n";
@@ -145,9 +150,7 @@ int main()
         }
     }
 
-    // 🌟 Trước khi thoát, lưu lại dữ liệu
-    savePitchesToFile(pitches, PITCH_FILE);
-    saveBookingsToFile(bookings, BOOKING_FILE);
+    // 🌟 Trước khi thoát, lưu lại dữ liệu user
     authController.saveCustomersToFile(USERS_FILE); 
     
     std::cout << "Tam biet!\n";

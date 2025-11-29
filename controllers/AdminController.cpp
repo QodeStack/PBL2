@@ -49,21 +49,69 @@ void AdminController::createPitch(std::vector<Pitch>& pitches) {
 }
 
 void AdminController::updatePitch(std::vector<Pitch>& pitches) {
+    if (pitches.empty()) {
+        std::cout << "Chua co san nao de sua.\n";
+        return;
+    }
+
     int id;
     std::cout << "Nhap ID san muon sua: ";
     std::cin >> id;
-    std::cin.ignore();
+    // ⚠ Quan trọng: xóa hết ký tự còn trong buffer trước khi dùng getline
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
     for (auto& p : pitches) {
         if (p.getId() == id) {
+            std::cout << "\nThong tin hien tai:\n";
+            std::cout << "ID: " << p.getId()
+                      << " | Ten: " << p.getName()
+                      << " | Gia: " << p.getPrice()
+                      << " | Loai san: " << p.getSize() << " nguoi\n";
+
+            // ====== SỬA TÊN SÂN ======
             std::string newName;
-            std::cout << "Nhap ten moi: ";
+            std::cout << "\nNhap ten moi (de trong neu muon giu nguyen): ";
             std::getline(std::cin, newName);
-            p.setName(newName);
-            std::cout << "Cap nhat thanh cong!\n";
+            if (!newName.empty()) {
+                p.setName(newName);
+            }
+
+            // ====== SỬA GIÁ SÂN ======
+            std::cout << "Nhap gia moi (nhap -1 neu muon giu nguyen): ";
+            double newPrice;
+            std::cin >> newPrice;
+
+            if (!std::cin.fail() && newPrice >= 0) {
+                p.setPrice(newPrice);
+            } else if (newPrice != -1) {
+                std::cout << "Gia khong hop le, giu nguyen gia cu.\n";
+            }
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+            // ====== SỬA LOẠI SÂN ======
+            std::cout << "Nhap loai san moi (5, 7, 11; nhap -1 neu giu nguyen): ";
+            int newSize;
+            std::cin >> newSize;
+
+            if (!std::cin.fail() && (newSize == 5 || newSize == 7 || newSize == 11)) {
+                p.setSize(newSize);
+            } else if (newSize != -1) {
+                std::cout << "Loai san khong hop le, giu nguyen loai san cu.\n";
+            }
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+            std::cout << "\n✅ Cap nhat thanh cong!\n";
+            std::cout << "Thong tin moi:\n";
+            std::cout << "ID: " << p.getId()
+                      << " | Ten: " << p.getName()
+                      << " | Gia: " << p.getPrice()
+                      << " | Loai san: " << p.getSize() << " nguoi\n";
             return;
         }
     }
+
     std::cout << "Khong tim thay san.\n";
 }
 
