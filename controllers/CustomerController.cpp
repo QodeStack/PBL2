@@ -34,7 +34,7 @@ void CustomerController::viewFreePitches(const std::vector<Pitch>& pitches,
 
         // Kiểm tra xem sân này có booking nào trùng khung giờ không
         for (const auto& b : bookings) {
-            if (b.getPitchId() == p.getId() && b.getTimeSlot() == timeSlot) {
+            if (b.getPitchId() == p.getId() && b.getTimeSlot() == timeSlot && b.getStatus() == BookingStatus::Active) { //<-- SỬA Ở ĐÂY
                 occupied = true;
                 break;
             }
@@ -84,7 +84,7 @@ void CustomerController::bookPitch(const std::vector<Pitch>& pitches,
 
     // Kiểm tra xem sân này ở khung giờ này đã có booking chưa
     for (const auto& b : bookings) {
-        if (b.getPitchId() == id && b.getTimeSlot() == timeSlot) {
+        if (b.getPitchId() == id && b.getTimeSlot() == timeSlot  && b.getStatus() == BookingStatus::Active ) { //<-- SỬA Ở ĐÂY
             std::cout << "Khung gio nay cho san nay da duoc dat. Vui long chon khung gio khac.\n";
             return;
         }

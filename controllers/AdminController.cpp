@@ -198,7 +198,7 @@ void AdminController::deletePitch(std::vector<Pitch>& pitches) {
     std::cout << "Khong tim thay san.\n";
 }
 
-// ================== HÀM MỚI Ở DƯỚI NÀY ==================
+///////////////////////////////////////////
 
 void AdminController::bookPitchOffline(const std::vector<Pitch>& pitches,
                                        std::vector<Booking>& bookings) {
@@ -265,7 +265,7 @@ void AdminController::checkoutPitch(std::vector<Pitch>& pitches,
     std::cout << "Nhap ID san can tinh tien: ";
     std::cin >> pitchId;
 
-    // Tìm sân
+    // 1. Tìm sân
     Pitch* pitchPtr = nullptr;
     for (auto& p : pitches) {
         if (p.getId() == pitchId) {
@@ -279,26 +279,63 @@ void AdminController::checkoutPitch(std::vector<Pitch>& pitches,
         return;
     }
 
-    // Tìm booking Active gần nhất cho sân này
-    Booking* target = nullptr;
+    // 2. Lọc các booking đang Active của sân này
+    std::vector<Booking*> candidateBookings;
     for (auto& b : bookings) {
         if (b.getPitchId() == pitchId &&
-            b.getStatus() == BookingStatus::Active) {
-            target = &b;
-            // (Nếu muốn lấy booking mới nhất thì có thể không break và ghi đè)
+            b.getStatus() == BookingStatus::Active &&
+            b.getTotalAmount() == 0.0) { // chưa tính tiền
+            candidateBookings.push_back(&b);
+        }
+    }
+
+    if (candidateBookings.empty()) {
+        std::cout << "Khong co booking nao dang hoat dong cho san nay.\n";
+        return;
+    }
+
+    // 3. In danh sách các booking để Admin chọn
+    std::cout << "\nCac booking dang hoat dong cho san ID " << pitchId << ":\n";
+    for (auto* b : candidateBookings) {
+        std::cout << "- Booking ID: " << b->getId();
+
+        if (!b->getTimeSlot().empty()) {
+            // ONLINE
+            std::cout << " | Kieu: ONLINE"
+                      << " | TimeSlot: " << b->getTimeSlot();
+        } else {
+            // OFFLINE
+            std::cout << " | Kieu: OFFLINE"
+                      << " | Bat dau: " << b->getStartTime();
+        }
+
+        std::cout << " | Khach: " << b->getCustomerUsername()
+                  << " | Tong tien hien tai: " << b->getTotalAmount()
+                  << "\n";
+    }
+
+    // 4. Cho admin chọn Booking ID cần tính tiền
+    int bookingId;
+    std::cout << "\nNhap Booking ID can tinh tien: ";
+    std::cin >> bookingId;
+
+    Booking* target = nullptr;
+    for (auto* b : candidateBookings) {
+        if (b->getId() == bookingId) {
+            target = b;
+            break;
         }
     }
 
     if (!target) {
-        std::cout << "Khong tim thay booking dang hoat dong cho san nay.\n";
+        std::cout << "Booking ID khong hop le.\n";
         return;
     }
 
     double hours = 0.0;
     double amount = 0.0;
 
-    // Phân biệt Online vs Offline:
-    // Online: có timeSlot; Offline: timeSlot rỗng
+    // 5. Phân biệt Online / Offline để tính giờ
     if (!target->getTimeSlot().empty()) {
         // 👉 Khách ONLINE: dùng timeSlot để tính
         hours = hoursFromTimeSlot(target->getTimeSlot());
@@ -327,14 +364,74 @@ void AdminController::checkoutPitch(std::vector<Pitch>& pitches,
         target->setEndTime(end);
     }
 
+    // 6. Cập nhật trạng thái booking + sân
     target->setTotalAmount(amount);
     target->setStatus(BookingStatus::Finished);
-    pitchPtr->setBooked(false);     // san tro lai TRONG
+    pitchPtr->setBooked(false); // nếu bạn đang dùng cờ này
 
     std::cout << "\n=== HOA DON DON GIAN ===\n";
     std::cout << "San: " << pitchPtr->getName() << " (ID: " << pitchId << ")\n";
+    std::cout << "Booking ID: " << target->getId() << "\n";
     std::cout << "Khach: " << target->getCustomerUsername() << "\n";
     std::cout << "So gio tinh tien: " << hours << "\n";
     std::cout << "Don gia/1 gio: " << pitchPtr->getPrice() << "\n";
     std::cout << "Tong tien: " << amount << "\n";
+}
+
+/////////////////////////////////////////
+
+
+void AdminController::viewUnpaidBookings(const std::vector<Booking>& bookings,
+                                         const std::vector<Pitch>& pitches) const {
+    std::cout << "\n=== DANH SACH LICH DAT CHUA TINH TIEN ===\n";
+
+    bool found = false;
+
+    for (const auto& b : bookings) {
+        // 📌 Điều kiện "chưa tính tiền":
+        // - status vẫn còn Active
+        // - totalAmount == 0
+        if (b.getStatus() == BookingStatus::Active &&
+            b.getTotalAmount() == 0.0) {
+
+            // Tìm sân tương ứng
+            const Pitch* pitchPtr = nullptr;
+            for (const auto& p : pitches) {
+                if (p.getId() == b.getPitchId()) {
+                    pitchPtr = &p;
+                    break;
+                }
+            }
+
+            std::cout << "Booking ID: " << b.getId();
+
+            if (pitchPtr) {
+                std::cout << " | San: " << pitchPtr->getName()
+                          << " (ID: " << pitchPtr->getId()
+                          << ", " << pitchPtr->getSize() << " nguoi"
+                          << ", Gia/gio: " << pitchPtr->getPrice() << ")";
+            } else {
+                std::cout << " | San ID: " << b.getPitchId();
+            }
+
+            // Phân biệt online/offline để in thông tin thời gian
+            if (!b.getTimeSlot().empty()) {
+                std::cout << " | Kieu: ONLINE"
+                          << " | TimeSlot: " << b.getTimeSlot();
+            } else {
+                std::cout << " | Kieu: OFFLINE"
+                          << " | Bat dau: " << b.getStartTime();
+            }
+
+            std::cout << " | Khach: " << b.getCustomerUsername()
+                      << " | Tong tien: " << b.getTotalAmount()
+                      << "\n";
+
+            found = true;
+        }
+    }
+
+    if (!found) {
+        std::cout << "Hien khong co lich dat nao chua tinh tien.\n";
+    }
 }

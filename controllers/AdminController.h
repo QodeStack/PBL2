@@ -11,11 +11,17 @@ public:
     void createPitch(std::vector<Pitch>& pitches);
     void updatePitch(std::vector<Pitch>& pitches);
     void deletePitch(std::vector<Pitch>& pitches);
-    // 🌟 HÀM MỚI: Admin đặt sân offline tại quầy
+    
+    // Admin đặt sân offline tại quầy
     void bookPitchOffline(const std::vector<Pitch>& pitches,
                           std::vector<Booking>& bookings);
     void checkoutPitch(std::vector<Pitch>& pitches,
                    std::vector<Booking>& bookings);
+    
+    // ✅ THÊM HÀM MỚI:
+    // Xem các lịch đặt CHƯA tính tiền
+    void viewUnpaidBookings(const std::vector<Booking>& bookings,
+                            const std::vector<Pitch>& pitches) const;
 };
 
 #endif // ADMIN_CONTROLLER_H

@@ -96,21 +96,24 @@ int main()
                     break;
                 case 2:
                     adminController.createPitch(pitches);
-                    savePitchesToFile(pitches, PITCH_FILE);  // ✅ Mới:
+                    savePitchesToFile(pitches, PITCH_FILE); 
                     break;
                 case 3:
                     adminController.updatePitch(pitches);
-                    savePitchesToFile(pitches, PITCH_FILE);// ✅ Mới:
+                    savePitchesToFile(pitches, PITCH_FILE);
                     break;
                 case 4:
                     adminController.deletePitch(pitches);
-                     savePitchesToFile(pitches, PITCH_FILE); // ✅ Mới:
+                     savePitchesToFile(pitches, PITCH_FILE);
                     break;
                 case 5:
-                    adminController.bookPitchOffline(pitches, bookings);   // <-- THÊM CASE NÀY
-                    saveBookingsToFile(bookings, BOOKING_FILE); // ✅ Mới: 
+                    adminController.bookPitchOffline(pitches, bookings);  
+                    saveBookingsToFile(bookings, BOOKING_FILE); 
                     break;
-                case 6:
+                case 6:  // ✅ Xem các lịch CHƯA tính tiền
+                    adminController.viewUnpaidBookings(bookings, pitches);
+                    break;
+                case 7:
                     adminController.checkoutPitch(pitches, bookings); 
                     saveBookingsToFile(bookings, BOOKING_FILE);
                     savePitchesToFile(pitches, PITCH_FILE);

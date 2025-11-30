@@ -19,8 +19,9 @@ int MenuView::showAdminMenu() const {
     std::cout << "2. Them san (Create)\n";
     std::cout << "3. Sua san (Update)\n";
     std::cout << "4. Xoa san (Delete)\n";
-    std::cout << "5. Dat san OFFLINE tai quay\n";   // <-- THÊM DÒNG NÀY
-    std::cout << "6. Tinh tien san\n";
+    std::cout << "5. Dat san OFFLINE tai quay\n";  
+    std::cout << "6. Xem lich dat CHUA tinh tien\n";   // ✅ THÊM DÒNG NÀY
+    std::cout << "7. Tinh tien san\n";
     std::cout << "0. Dang xuat\n";
     std::cout << "Chon: ";
     std::cin >> choice;
