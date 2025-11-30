@@ -14,10 +14,6 @@ public:
     void viewFreePitches(const std::vector<Pitch>& pitches,
                          const std::vector<Booking>& bookings) const;
 
-    // Xem danh sách sân đã được đặt (theo các booking hiện có)
-    void viewBookedPitches(const std::vector<Pitch>& pitches,
-                           const std::vector<Booking>& bookings) const;
-
     // Đặt sân: chọn pitch + khung giờ, lưu vào bookings
     void bookPitch(const std::vector<Pitch>& pitches,
                    std::vector<Booking>& bookings,

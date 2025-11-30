@@ -32,8 +32,7 @@ int MenuView::showCustomerMenu() const {
     std::cout << "\n===== MENU KHACH HANG =====\n";
     std::cout << "1. Xem tat ca san\n";
     std::cout << "2. Xem san trong\n";
-    std::cout << "3. Xem san da dat\n";
-    std::cout << "4. Dat san\n";
+    std::cout << "3. Dat san\n";
     std::cout << "0. Dang xuat\n";
     std::cout << "Chon: ";
     std::cin >> choice;

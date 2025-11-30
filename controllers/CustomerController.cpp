@@ -2,7 +2,7 @@
 #include <iostream>
 #include <limits>  // để dùng std::numeric_limits
 
-
+// xem danh sách 
 void CustomerController::viewAllPitches(const std::vector<Pitch>& pitches) const {
     std::cout << "\n=== TAT CA SAN ===\n";
     if (pitches.empty()) {
@@ -51,40 +51,6 @@ void CustomerController::viewFreePitches(const std::vector<Pitch>& pitches,
 
     if (!found) {
         std::cout << "Khong co san trong o khung gio nay.\n";
-    }
-}
-
-void CustomerController::viewBookedPitches(const std::vector<Pitch>& pitches,
-                                           const std::vector<Booking>& bookings) const {
-    std::cout << "\n=== CAC LICH DAT SAN ===\n";
-
-    if (bookings.empty()) {
-        std::cout << "Chua co lich dat nao.\n";
-        return;
-    }
-
-    for (const auto& b : bookings) {
-        // Tìm thông tin sân tương ứng
-        const Pitch* pitchPtr = nullptr;
-        for (const auto& p : pitches) {
-            if (p.getId() == b.getPitchId()) {
-                pitchPtr = &p;
-                break;
-            }
-        }
-
-        std::cout << "Booking ID: " << b.getId()
-                  << " | San ID: " << b.getPitchId();
-
-        if (pitchPtr) {
-            std::cout << " (" << pitchPtr->getName()
-                      << ", " << pitchPtr->getSize() << " nguoi"
-                      << ", Gia: " << pitchPtr->getPrice() << ")";
-        }
-
-        std::cout << " | Khach: " << b.getCustomerUsername()
-                  << " | Khung gio: " << b.getTimeSlot()
-                  << '\n';
     }
 }
 

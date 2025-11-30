@@ -135,9 +135,6 @@ int main()
                     customerController.viewFreePitches(pitches, bookings);
                     break;
                 case 3:
-                    customerController.viewBookedPitches(pitches, bookings);
-                    break;
-                case 4:
                     customerController.bookPitch(
                         pitches,
                         bookings,
