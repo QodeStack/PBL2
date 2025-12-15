@@ -435,3 +435,71 @@ void AdminController::viewUnpaidBookings(const std::vector<Booking>& bookings,
         std::cout << "Hien khong co lich dat nao chua tinh tien.\n";
     }
 }
+
+void AdminController::createPitch(std::vector<Pitch>& pitches, int id, const std::string& name, double price, int size) {
+    pitches.emplace_back(id, name, price, size);
+}
+
+bool AdminController::updatePitch(std::vector<Pitch>& pitches, int id, const std::string& newName, double newPrice, int newSize) {
+    for (auto& p : pitches) {
+        if (p.getId() == id) {
+            if (!newName.empty()) p.setName(newName);
+            if (newPrice > 0)     p.setPrice(newPrice);
+            if (newSize > 0)      p.setSize(newSize);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool AdminController::deletePitchById(std::vector<Pitch>& pitches, int id) {
+    for (auto it = pitches.begin(); it != pitches.end(); ++it) {
+        if (it->getId() == id) {
+            pitches.erase(it);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool AdminController::bookPitchOffline(const std::vector<Pitch>& pitches,std::vector<Booking>& bookings,int pitchId,const std::string& customerNameInput,std::string& outMsg)
+{
+    if (pitches.empty()) {
+        outMsg = "Chua co san nao trong he thong.";
+        return false;
+    }
+
+    const Pitch* selectedPitch = nullptr;
+    for (const auto& p : pitches) {
+        if (p.getId() == pitchId) {
+            selectedPitch = &p;
+            break;
+        }
+    }
+
+    if (!selectedPitch) {
+        outMsg = "Khong tim thay san co ID = " + std::to_string(pitchId);
+        return false;
+    }
+
+    std::string customerName = customerNameInput;
+    if (customerName.empty()) customerName = "OFFLINE";
+
+    std::string start = getCurrentTimeString();
+
+    bookings.emplace_back(
+        pitchId,
+        customerName,
+        "",
+        start,
+        "",
+        BookingStatus::Active,
+        0.0
+    );
+
+    outMsg = "Dat san OFFLINE thanh cong! Khach: " + customerName +
+             " | San: " + selectedPitch->getName() +
+             " | Bat dau luc: " + start;
+    return true;
+}
+

@@ -9,7 +9,9 @@
 #include "controllers/AdminController.h"
 #include "controllers/CustomerController.h"
 #include "views/MenuView.h"
-#include "storage/DataStorage.h"  
+#include "storage/DataStorage.h"
+
+#include "views/TerminalUI.h"
 
 int main()
 {
@@ -21,14 +23,13 @@ int main()
     MenuView view;
 
     // 🌟 Load dữ liệu từ file (nếu có)
-    const std::string PITCH_FILE   = "data/pitches.txt";
+    const std::string PITCH_FILE = "data/pitches.txt";
     const std::string BOOKING_FILE = "data/bookings.txt";
     const std::string USERS_FILE = "data/users.txt";
 
-    loadPitchesFromFile(pitches,PITCH_FILE );
-    loadBookingsFromFile(bookings,BOOKING_FILE);
+    loadPitchesFromFile(pitches, PITCH_FILE);
+    loadBookingsFromFile(bookings, BOOKING_FILE);
     authController.loadCustomersFromFile(USERS_FILE);
-
 
     std::shared_ptr<User> currentUser = nullptr;
     bool running = true;
@@ -40,11 +41,12 @@ int main()
             int choice = view.showMainMenu();
             if (choice == 1)
             {
-                std::string username, password;
-                std::cout << "Username: ";
-                std::cin >> username;
-                std::cout << "Password: ";
-                std::cin >> password;
+                auto [username, password] = view.showLoginForm(); // ✅ UI đẹp trong khung
+
+                if (username == "0")
+                {
+                    continue; // quay lại menu chính
+                }
 
                 auto user = authController.login(username, password);
                 if (user)
@@ -92,31 +94,64 @@ int main()
                 switch (choice)
                 {
                 case 1:
-                    adminController.listPitches(pitches);
+                {
+                    view.showPitchesScreen(pitches); // ✅ UI ra giữa
+                    view.pause();
                     break;
+                }
                 case 2:
-                    adminController.createPitch(pitches);
-                    savePitchesToFile(pitches, PITCH_FILE); 
-                    break;
-                case 3:
-                    adminController.updatePitch(pitches);
+                {
+                    auto in = view.showCreatePitchForm(); // ✅ nhập trong khung
+                    adminController.createPitch(pitches, in.id, in.name, in.price, in.size);
                     savePitchesToFile(pitches, PITCH_FILE);
+                    view.pause(); // (pause không in gì)
                     break;
+                }
+                case 3:
+                {
+                    auto in = view.showUpdatePitchForm();
+                    bool ok = adminController.updatePitch(pitches, in.id, in.newName, in.newPrice, in.newSize);
+                    if (ok)
+                        savePitchesToFile(pitches, PITCH_FILE);
+                    view.pause();
+                    break;
+                }
                 case 4:
-                    adminController.deletePitch(pitches);
-                     savePitchesToFile(pitches, PITCH_FILE);
+                {
+                    auto [id, confirm] = view.showDeletePitchForm();
+                    if (confirm)
+                    {
+                        bool ok = adminController.deletePitchById(pitches, id);
+                        if (ok)
+                            savePitchesToFile(pitches, PITCH_FILE);
+                    }
+                    view.pause();
                     break;
+                }
                 case 5:
-                    adminController.bookPitchOffline(pitches, bookings);  
-                    saveBookingsToFile(bookings, BOOKING_FILE); 
+                {
+                    auto in = view.showOfflineBookingForm(); // (pitchId, customerName)
+
+                    std::string msg;
+                    bool ok = adminController.bookPitchOffline(pitches, bookings, in.pitchId, in.customerName, msg);
+
+                    if (ok)
+                        saveBookingsToFile(bookings, BOOKING_FILE);
+
+                    view.showMessageBox("KET QUA DAT SAN OFFLINE", {msg});
+                    view.pause();
                     break;
-                case 6:  // ✅ Xem các lịch CHƯA tính tiền
-                    adminController.viewUnpaidBookings(bookings, pitches);
-                    break;
+                }
+               case 6: {
+    view.showUnpaidBookingsScreen(bookings, pitches);
+    view.pause();
+    break;
+}
                 case 7:
-                    adminController.checkoutPitch(pitches, bookings); 
+                    adminController.checkoutPitch(pitches, bookings);
                     saveBookingsToFile(bookings, BOOKING_FILE);
                     savePitchesToFile(pitches, PITCH_FILE);
+                    view.pause();
                     break;
                 case 0:
                     std::cout << "Dang xuat...\n";
@@ -142,7 +177,7 @@ int main()
                         pitches,
                         bookings,
                         currentUser->getUsername());
-                        saveBookingsToFile(bookings, BOOKING_FILE);
+                    saveBookingsToFile(bookings, BOOKING_FILE);
                     break;
                 case 0:
                     std::cout << "Dang xuat...\n";
@@ -156,8 +191,8 @@ int main()
     }
 
     // 🌟 Trước khi thoát, lưu lại dữ liệu user
-    authController.saveCustomersToFile(USERS_FILE); 
-    
+    authController.saveCustomersToFile(USERS_FILE);
+
     std::cout << "Tam biet!\n";
     return 0;
 }
