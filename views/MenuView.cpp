@@ -380,13 +380,25 @@ OfflineBookingInput MenuView::showOfflineBookingForm() const {
     return in;
 }
 
+// Hàm tách dòng cho update 
+static std::vector<std::string> splitLines(const std::string& s) {
+    std::vector<std::string> lines;
+    std::string cur;
+    for (char c : s) {
+        if (c == '\r') continue;          // bỏ CR nếu có
+        if (c == '\n') { lines.push_back(cur); cur.clear(); }
+        else cur.push_back(c);
+    }
+    lines.push_back(cur);
+    return lines;
+}
 void MenuView::showMessageBox(const std::string& title, const std::vector<std::string>& lines) const {
     TerminalUI ui;
     ui.init();
     ui.clear();
 
-    const int boxW = 95;
-    const int boxH = 14;
+    const int boxW = 150;
+    const int boxH = 20;
     int top  = ui.centerTop(boxH);
     int left = ui.centerLeft(boxW);
 
@@ -394,10 +406,14 @@ void MenuView::showMessageBox(const std::string& title, const std::vector<std::s
     ui.printCentered(top + 1, title);
 
     int r = top + 4;
-    for (const auto& s : lines) {
-        ui.printAt(r++, left + 3, s);
+for (const auto& s : lines) {
+    auto parts = splitLines(s);               // tách theo '\n'
+    for (const auto& oneLine : parts) {
+        ui.printAt(r++, left + 3, oneLine);   // mỗi lần in 1 dòng, không có '\n'
         if (r >= top + boxH - 3) break;
     }
+    if (r >= top + boxH - 3) break;
+}
 
     ui.printAt(top + boxH - 2, left + 3, "Nhan ENTER de quay lai...");
     ui.moveCursor(top + boxH - 2, left + 3 + (int)std::string("Nhan ENTER de quay lai...").size());
@@ -484,7 +500,9 @@ void MenuView::showUnpaidBookingsScreen(const std::vector<Booking>& bookings,con
     for (const auto& b : bookings)
     {
         // ✅ CHUA TINH TIEN = Active
-        if (b.getStatus() != BookingStatus::Active) continue;
+        if (b.getStatus() != BookingStatus::Active || b.getTotalAmount() != 0.0)
+    continue;
+
 
         int pitchId = b.getPitchId();
 
@@ -497,7 +515,9 @@ void MenuView::showUnpaidBookingsScreen(const std::vector<Booking>& bookings,con
         // KIEU: OFFLINE nếu timeSlot rỗng
         std::string type = b.getTimeSlot().empty() ? "OFFLINE" : "ONLINE";
 
-        std::string start   = b.getStartTime();
+        std::string start = b.getTimeSlot().empty()
+                  ? b.getStartTime()
+                  : b.getTimeSlot();   // ONLINE hiển thị TimeSlot
         std::string customer= b.getCustomerUsername();
 
         long long total = (long long)b.getTotalAmount();
@@ -526,6 +546,41 @@ void MenuView::showUnpaidBookingsScreen(const std::vector<Booking>& bookings,con
     printRow(top + boxH - 2, "Nhan ENTER de quay lai...");
     ui.moveCursor(top + boxH - 2, left + 1 + marginL + (int)std::string("Nhan ENTER de quay lai...").size());
 }
+
+// tính tiền 
+
+int MenuView::showCheckoutChoosePitchForm() const {
+    TerminalUI ui; ui.init(); ui.clear();
+    const int boxW=75, boxH=12;
+    int top=ui.centerTop(boxH), left=ui.centerLeft(boxW);
+    ui.drawBox(top,left,boxH,boxW);
+    ui.printCentered(top+1,"TINH TIEN SAN");
+    ui.printAt(top+4,left+3,"Nhap ID san can tinh tien: ");
+    int pitchId;
+    ui.moveCursor(top+4,left+31);
+    std::cin >> pitchId;
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    ui.printAt(top+boxH-2,left+3,"Nhan ENTER de tiep tuc...");
+    ui.moveCursor(top+boxH-2,left+3+(int)std::string("Nhan ENTER de tiep tuc...").size());
+    return pitchId;
+}
+
+int MenuView::showCheckoutChooseBookingForm() const {
+    TerminalUI ui; ui.init(); ui.clear();
+    const int boxW=75, boxH=12;
+    int top=ui.centerTop(boxH), left=ui.centerLeft(boxW);
+    ui.drawBox(top,left,boxH,boxW);
+    ui.printCentered(top+1,"CHON BOOKING DE TINH TIEN");
+    ui.printAt(top+4,left+3,"Nhap Booking ID can tinh tien: ");
+    int bookingId;
+    ui.moveCursor(top+4,left+34);
+    std::cin >> bookingId;
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    ui.printAt(top+boxH-2,left+3,"Nhan ENTER de tiep tuc...");
+    ui.moveCursor(top+boxH-2,left+3+(int)std::string("Nhan ENTER de tiep tuc...").size());
+    return bookingId;
+}
+
 
 
 

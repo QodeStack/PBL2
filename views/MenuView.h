@@ -43,11 +43,12 @@ public:
 
         OfflineBookingInput showOfflineBookingForm() const;
         void showMessageBox(const std::string& title, const std::vector<std::string>& lines) const;
-
         void showUnpaidBookingsScreen(const std::vector<Booking>& bookings,
                               const std::vector<Pitch>& pitches) const;
 
-
+        // tính tiền 
+int showCheckoutChoosePitchForm() const;
+int showCheckoutChooseBookingForm() const;
 };
 
 #endif // MENU_VIEW_H

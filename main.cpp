@@ -101,16 +101,24 @@ int main()
                 }
                 case 2:
                 {
-                    auto in = view.showCreatePitchForm(); // ✅ nhập trong khung
-                    adminController.createPitch(pitches, in.id, in.name, in.price, in.size);
-                    savePitchesToFile(pitches, PITCH_FILE);
-                    view.pause(); // (pause không in gì)
+                    auto in = view.showCreatePitchForm();
+
+                    std::string msg;
+                    bool ok = adminController.createPitch(pitches, in.id, in.name, in.price, in.size, msg);
+                    view.showMessageBox("KET QUA THEM SAN", {msg});
+                    if (ok)
+                    {
+                        savePitchesToFile(pitches, PITCH_FILE);
+                    }
+                    view.pause();
                     break;
                 }
                 case 3:
                 {
                     auto in = view.showUpdatePitchForm();
-                    bool ok = adminController.updatePitch(pitches, in.id, in.newName, in.newPrice, in.newSize);
+                    std::string msg;
+                    bool ok = adminController.updatePitch(pitches, in.id, in.newName, in.newPrice, in.newSize, msg);
+                    view.showMessageBox("KET QUA CAP NHAT SAN", {msg});
                     if (ok)
                         savePitchesToFile(pitches, PITCH_FILE);
                     view.pause();
@@ -123,7 +131,18 @@ int main()
                     {
                         bool ok = adminController.deletePitchById(pitches, id);
                         if (ok)
+                        {
                             savePitchesToFile(pitches, PITCH_FILE);
+                            view.showMessageBox("KET QUA XOA SAN", {"Xoa san thanh cong!"});
+                        }
+                        else
+                        {
+                            view.showMessageBox("KET QUA XOA SAN", {"Khong tim thay san."});
+                        }
+                    }
+                    else
+                    {
+                        view.showMessageBox("KET QUA XOA SAN", {"Da huy thao tac xoa."});
                     }
                     view.pause();
                     break;
@@ -142,17 +161,45 @@ int main()
                     view.pause();
                     break;
                 }
-               case 6: {
-    view.showUnpaidBookingsScreen(bookings, pitches);
-    view.pause();
-    break;
-}
-                case 7:
-                    adminController.checkoutPitch(pitches, bookings);
-                    saveBookingsToFile(bookings, BOOKING_FILE);
-                    savePitchesToFile(pitches, PITCH_FILE);
+                case 6:
+                {
+                    view.showUnpaidBookingsScreen(bookings, pitches);
                     view.pause();
                     break;
+                }
+                case 7:
+                {
+                    int pitchId = view.showCheckoutChoosePitchForm();
+
+                    std::vector<std::string> lines;
+                    std::string err;
+                    if (!adminController.getCheckoutCandidates(pitches, bookings, pitchId, lines, err))
+                    {
+                        view.showMessageBox("TINH TIEN SAN", {err});
+                        view.pause();
+                        break;
+                    }
+
+                    view.showMessageBox("CAC BOOKING CHUA TINH TIEN", lines);
+                    view.pause();
+
+                    int bookingId = view.showCheckoutChooseBookingForm();
+
+                    std::string bill;
+                    bool ok = adminController.checkoutPitch(pitches, bookings, pitchId, bookingId, bill);
+
+                    view.showMessageBox("KET QUA TINH TIEN", {bill});
+
+                    if (ok)
+                    {
+                        saveBookingsToFile(bookings, BOOKING_FILE);
+                        savePitchesToFile(pitches, PITCH_FILE);
+                    }
+
+                    view.pause();
+                    break;
+                }
+
                 case 0:
                     std::cout << "Dang xuat...\n";
                     currentUser.reset();
