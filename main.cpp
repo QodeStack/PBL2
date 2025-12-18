@@ -222,10 +222,10 @@ int main()
                     view.pause(); // ✅ THÊM DÒNG NÀY
                     break;
                 case 3:
-                    customerController.bookPitch(
-                        pitches,
-                        bookings,
-                        currentUser->getUsername());
+                    customerController.bookPitch(pitches, bookings, currentUser->getUsername());
+                    saveBookingsToFile(bookings, BOOKING_FILE);
+                    view.pause();
+                    break;
                     saveBookingsToFile(bookings, BOOKING_FILE);
                     break;
                 case 0:

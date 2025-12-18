@@ -150,12 +150,60 @@ void CustomerController::viewFreePitches(const std::vector<Pitch>& pitches,
 
 void CustomerController::bookPitch(const std::vector<Pitch>& pitches,
                                    std::vector<Booking>& bookings,
-                                   const std::string& username) {
+                                   const std::string& username)
+{
+    TerminalUI ui;
+    TermSize ts = ui.getSize();
+
+    int boxWidth  = std::min(110, ts.cols - 4);
+    int boxHeight = std::min(26,  ts.rows - 4);
+    if (boxWidth < 70)  boxWidth  = std::min(ts.cols - 2, 70);
+    if (boxHeight < 14) boxHeight = std::min(ts.rows - 2, 14);
+
+    int top  = ui.centerTop(boxHeight);
+    int left = ui.centerLeft(boxWidth);
+
+    auto showMsg = [&](const std::string& title, const std::string& msg) {
+        ui.clear();
+        ui.drawBox(top, left, boxHeight, boxWidth);
+
+        int innerLeft = left + 1;
+        int innerW    = boxWidth - 2;
+
+        int titleCol = innerLeft + std::max(0, (innerW - (int)title.size()) / 2);
+        ui.printAt(top + 1, titleCol, title);
+        ui.drawHLine(top + 2, left, boxWidth, '-');
+
+        ui.printAt(top + 5, innerLeft + 2, ui.fitText(msg, innerW - 4));
+
+        std::string hint = "Nhan ENTER de quay lai...";
+        ui.printAt(top + boxHeight - 2, innerLeft + 2, ui.fitText(hint, innerW - 4));
+    };
+
+    // ====== FORM NHAP ID SAN ======
+    ui.clear();
+    ui.drawBox(top, left, boxHeight, boxWidth);
+
+    int innerLeft = left + 1;
+    int innerW    = boxWidth - 2;
+
+    std::string title = "DAT SAN (CUSTOMER)";
+    int titleCol = innerLeft + std::max(0, (innerW - (int)title.size()) / 2);
+    ui.printAt(top + 1, titleCol, title);
+    ui.drawHLine(top + 2, left, boxWidth, '-');
+
+    std::string uline = "Tai khoan: " + username;
+    ui.printAt(top + 4, innerLeft + 2, ui.fitText(uline, innerW - 4));
+
+    ui.printAt(top + 6, innerLeft + 2, "Nhap ID san muon dat: ");
+    ui.printAt(top + 7, innerLeft + 2, "> ");
+
+    // nhập ID (đúng logic cũ: cin >> id)
     int id;
-    std::cout << "Nhap ID san muon dat: ";
+    ui.moveCursor(top + 7, innerLeft + 4);
     std::cin >> id;
 
-    // Tìm sân theo ID
+    // ====== TIM SAN ======
     const Pitch* selectedPitch = nullptr;
     for (const auto& p : pitches) {
         if (p.getId() == id) {
@@ -165,36 +213,54 @@ void CustomerController::bookPitch(const std::vector<Pitch>& pitches,
     }
 
     if (!selectedPitch) {
-        std::cout << "Khong tim thay san.\n";
+        showMsg("KET QUA DAT SAN", "Khong tim thay san.");
         return;
     }
 
-    // Xóa \n còn lại trong buffer
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    // ====== NHAP TIMESLOT ======
+    // (quan trọng) dùng getline với std::ws để tránh lỗi "lần 2 mới ăn"
+    ui.clear();
+    ui.drawBox(top, left, boxHeight, boxWidth);
 
+    ui.printAt(top + 1, titleCol, title);
+    ui.drawHLine(top + 2, left, boxWidth, '-');
+
+    std::string info1 = "San: " + selectedPitch->getName() +
+                        " | Gia: " + std::to_string((long long)selectedPitch->getPrice()) +
+                        " | Loai: " + std::to_string(selectedPitch->getSize()) + " nguoi";
+    ui.printAt(top + 4, innerLeft + 2, ui.fitText(info1, innerW - 4));
+
+    std::string ask = "Nhap khung gio muon dat (VD: 2025-12-01 18:00-19:00):";
+    ui.printAt(top + 6, innerLeft + 2, ui.fitText(ask, innerW - 4));
+    ui.printAt(top + 7, innerLeft + 2, "> ");
+
+    ui.moveCursor(top + 7, innerLeft + 4);
     std::string timeSlot;
-    std::cout << "Nhap khung gio muon dat (VD: 2025-12-01 18:00-19:00): ";
-    std::getline(std::cin, timeSlot);
+    std::getline(std::cin >> std::ws, timeSlot); // ✅ fix lỗi nhập lần 2 mới lấy
 
-    // Kiểm tra xem sân này ở khung giờ này đã có booking chưa
+    // ====== CHECK TRUNG (Y LOGIC CU) ======
     for (const auto& b : bookings) {
-        if (b.getPitchId() == id && b.getTimeSlot() == timeSlot  && b.getStatus() == BookingStatus::Active ) { //<-- SỬA Ở ĐÂY
-            std::cout << "Khung gio nay cho san nay da duoc dat. Vui long chon khung gio khac.\n";
+        if (b.getPitchId() == id &&
+            b.getTimeSlot() == timeSlot &&
+            b.getStatus() == BookingStatus::Active)
+        {
+            showMsg("KET QUA DAT SAN",
+                    "Khung gio nay cho san nay da duoc dat. Vui long chon khung gio khac.");
             return;
         }
     }
 
-    // Nếu chưa ai đặt -> tạo booking mới
+    // ====== TAO BOOKING (Y LOGIC CU) ======
     bookings.emplace_back(
-    id,           // ID sân
-    username,          // tài khoản khách
-    timeSlot,          // ví dụ: "2025-12-01 18:00-20:00"
-    "",                // startTime (online mình không dùng giờ máy, mà tính từ timeSlot)
-    "",                // endTime (chưa cần)
-    BookingStatus::Active,
-    0.0
-);
+        id,
+        username,
+        timeSlot,
+        "",
+        "",
+        BookingStatus::Active,
+        0.0
+    );
 
-    std::cout << "Dat san thanh cong! San " << selectedPitch->getName()
-              << " vao khung gio: " << timeSlot << "\n";
+    showMsg("KET QUA DAT SAN",
+            "Dat san thanh cong! San " + selectedPitch->getName() + " vao khung gio: " + timeSlot);
 }
