@@ -8,6 +8,7 @@
 
 class CustomerController {
 public:
+    
     void viewAllPitches(const std::vector<Pitch>& pitches) const;
 
     // Xem sân trống theo 1 khung giờ

@@ -215,9 +215,11 @@ int main()
                 {
                 case 1:
                     customerController.viewAllPitches(pitches);
+                    view.pause(); // ✅ THÊM DÒNG NÀY
                     break;
                 case 2:
                     customerController.viewFreePitches(pitches, bookings);
+                    view.pause(); // ✅ THÊM DÒNG NÀY
                     break;
                 case 3:
                     customerController.bookPitch(

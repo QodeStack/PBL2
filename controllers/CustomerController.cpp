@@ -1,20 +1,11 @@
 #include "CustomerController.h"
 #include <iostream>
 #include <limits>  // để dùng std::numeric_limits
+#include "../views/TerminalUI.h"
 
-// xem danh sách 
 void CustomerController::viewAllPitches(const std::vector<Pitch>& pitches) const {
-    std::cout << "\n=== TAT CA SAN ===\n";
-    if (pitches.empty()) {
-        std::cout << "Chua co san nao.\n";
-        return;
-    }
-    for (const auto& p : pitches) {
-        std::cout << "ID: " << p.getId()
-                  << " | Ten: " << p.getName()
-                  << " | Gia: " << p.getPrice()
-                  << " | Loai san: " << p.getSize() << " nguoi\n";
-    }
+    TerminalUI ui;
+    ui.showCustomerAllPitches(pitches);
 }
 
 void CustomerController::viewFreePitches(const std::vector<Pitch>& pitches,
