@@ -1,12 +1,11 @@
 #include "AdminController.h"
 #include <iostream>
-#include <limits> // <-- THÊM DÒNG NÀY
-/// Set thời gian
-#include <chrono>
-#include <ctime>
-#include <iomanip>
-#include <sstream>
-//// Set thời gian
+#include <limits> 
+#include <chrono> // Thư viện dùng để set thời gian
+#include <ctime> // Thư viện dùng để set thời gian
+#include <iomanip> //Thư viện dùng để set thời gian
+#include <sstream> //Thư viện dùng để set thời gian
+
 
 using std::cin;
 using std::cout;
@@ -28,13 +27,15 @@ static std::string getCurrentTimeString()
     oss << std::put_time(&localTm, "%Y-%m-%d %H:%M");
     return oss.str();
 }
-// Hàm parse "YYYY-MM-DD HH:MM" thành time_t
+
+// Hàm parse "YYYY-MM-DD HH:MM" thành time_t để tính toán thời gian chơi ( chuyển từ chuỗi thành số )
 static bool parseDateTime(const std::string &s, std::tm &outTm)
 {
     std::istringstream iss(s);
     iss >> std::get_time(&outTm, "%Y-%m-%d %H:%M");
     return !iss.fail();
 }
+
 // Tính số giờ giữa 2 chuỗi datetime
 static double diffHours(const std::string &start, const std::string &end)
 {
@@ -52,6 +53,7 @@ static double diffHours(const std::string &start, const std::string &end)
     double seconds = std::difftime(tEnd, tStart);
     return seconds / 3600.0;
 }
+
 // Tính số giờ từ timeSlot online "2025-12-01 18:00-20:00"
 static double hoursFromTimeSlot(const std::string &timeSlot)
 {
@@ -78,10 +80,8 @@ static double hoursFromTimeSlot(const std::string &timeSlot)
 }
 
 
-bool AdminController::createPitch(std::vector<Pitch> &pitches,
-                                  int id, const std::string &name,
-                                  double price, int size,
-                                  std::string &outMsg)
+// Xử lí : việc tạo sân ( kiểm tra logic )
+bool AdminController::createPitch(std::vector<Pitch> &pitches,int id, const std::string &name,double price, int size,std::string &outMsg)
 {
     // 1) validate size (y hệt bản cũ)
     if (size != 5 && size != 7 && size != 11)
@@ -106,12 +106,7 @@ bool AdminController::createPitch(std::vector<Pitch> &pitches,
     return true;
 }
 
-bool AdminController::updatePitch(std::vector<Pitch> &pitches,
-                                  int id,
-                                  const std::string &newName,
-                                  double newPrice,
-                                  int newSize,
-                                  std::string &outMsg)
+bool AdminController::updatePitch(std::vector<Pitch> &pitches,int id,const std::string &newName,double newPrice,int newSize,std::string &outMsg)
 {
     if (pitches.empty())
     {
@@ -163,7 +158,7 @@ bool AdminController::updatePitch(std::vector<Pitch> &pitches,
         }
 
         // In thông tin mới (giống bản cũ)
-        oss << "\n✅ Cap nhat thanh cong!\n";
+        oss << "\nCap nhat thanh cong!\n";
         oss << "Thong tin moi:\n";
         oss << "ID: " << p.getId()
             << " | Ten: " << p.getName()
@@ -191,11 +186,7 @@ bool AdminController::deletePitchById(std::vector<Pitch> &pitches, int id)
     return false; // không tìm thấy
 }
 
-bool AdminController::bookPitchOffline(const std::vector<Pitch> &pitches,
-                                       std::vector<Booking> &bookings,
-                                       int pitchId,
-                                       const std::string &customerNameInput,
-                                       std::string &outMsg)
+bool AdminController::bookPitchOffline(const std::vector<Pitch> &pitches,std::vector<Booking> &bookings,int pitchId,const std::string &customerNameInput,std::string &outMsg)
 {
     if (pitches.empty())
     {
@@ -247,10 +238,7 @@ bool AdminController::bookPitchOffline(const std::vector<Pitch> &pitches,
 }
 
 
-bool AdminController::getCheckoutCandidates(const std::vector<Pitch>& pitches,
-                                            const std::vector<Booking>& bookings,
-                                            int pitchId,
-                                            std::vector<std::string>& outLines,
+bool AdminController::getCheckoutCandidates(const std::vector<Pitch>& pitches,const std::vector<Booking>& bookings,int pitchId,std::vector<std::string>& outLines,
                                             std::string& outErr) const
 {
     // 1) tìm sân
@@ -294,11 +282,7 @@ bool AdminController::getCheckoutCandidates(const std::vector<Pitch>& pitches,
     return true;
 }
 
-bool AdminController::checkoutPitch(std::vector<Pitch>& pitches,
-                                    std::vector<Booking>& bookings,
-                                    int pitchId,
-                                    int bookingId,
-                                    std::string& outBillMsg)
+bool AdminController::checkoutPitch(std::vector<Pitch>& pitches,std::vector<Booking>& bookings,int pitchId,int bookingId,std::string& outBillMsg)
 {
     // 1) tìm sân
     Pitch* pitchPtr = nullptr;

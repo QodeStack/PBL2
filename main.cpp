@@ -51,19 +51,19 @@ int main()
                     if (st == LoginStatus::Success)
                     {
                         currentUser = outUser;
-                        view.showMessageBox("DANG NHAP", {"Dang nhap thanh cong!"});
+                        view.showMessageBox("DANG NHAP", {"Dang nhap thanh cong!"}, Color::Green);
                         view.pause();
                         break; // vào menu theo role
                     }
                     else if (st == LoginStatus::WrongPassword)
                     {
-                        view.showMessageBox("DANG NHAP", {"Tai Khoan Khong Ton Tai Hoac Sai Mat Khau. Vui Long Thu Lai."});
+                        view.showMessageBox("DANG NHAP", {"Tai Khoan Khong Ton Tai Hoac Sai Mat Khau. Vui Long Thu Lai."},Color::Red);
                         view.pause(); // ✅ phải có, nếu không sẽ bị vẽ lại form ngay => bạn tưởng không hiện
                         continue;     // quay lại form đăng nhập
                     }
                     else // UserNotFound
                     {
-                        view.showMessageBox("DANG NHAP", {"Tai Khoan Khong Ton Tai Hoac Sai Mat Khau. Vui Long Thu Lai."});
+                        view.showMessageBox("DANG NHAP", {"Tai Khoan Khong Ton Tai Hoac Sai Mat Khau. Vui Long Thu Lai."},Color::Red);
                         view.pause(); // ✅ phải có
                         continue;
                     }
@@ -81,11 +81,11 @@ int main()
                 if (authController.registerCustomer(username, password))
                 {
                     authController.saveCustomersToFile(USERS_FILE);
-                    view.showMessageBox("DANG KY", {"Dang ky thanh cong! Ban co the dang nhap."});
+                    view.showMessageBox("DANG KY", {"Dang ky thanh cong! Ban co the dang nhap."},Color::Green);
                 }
                 else
                 {
-                    view.showMessageBox("DANG KY", {"Ten nguoi dung da ton tai."});
+                    view.showMessageBox("DANG KY", {"Ten nguoi dung da ton tai."},Color::Red);
                 }
                 view.pause();
             }
@@ -119,10 +119,10 @@ int main()
                 case 2:
                 {
                     auto in = view.showCreatePitchForm();
-
                     std::string msg;
                     bool ok = adminController.createPitch(pitches, in.id, in.name, in.price, in.size, msg);
-                    view.showMessageBox("KET QUA THEM SAN", {msg});
+                    if (ok) view.showMessageBox("KET QUA THEM SAN", {msg},Color::Green);
+                    else view.showMessageBox("KET QUA THEM SAN", {msg},Color::Red);
                     if (ok)
                     {
                         savePitchesToFile(pitches, PITCH_FILE);
@@ -135,7 +135,8 @@ int main()
                     auto in = view.showUpdatePitchForm();
                     std::string msg;
                     bool ok = adminController.updatePitch(pitches, in.id, in.newName, in.newPrice, in.newSize, msg);
-                    view.showMessageBox("KET QUA CAP NHAT SAN", {msg});
+                    if (ok) view.showMessageBox("KET QUA CAP NHAT SAN", {msg},Color::Green);
+                    else view.showMessageBox("KET QUA CAP NHAT SAN", {msg},Color::Red);
                     if (ok)
                         savePitchesToFile(pitches, PITCH_FILE);
                     view.pause();
@@ -150,16 +151,16 @@ int main()
                         if (ok)
                         {
                             savePitchesToFile(pitches, PITCH_FILE);
-                            view.showMessageBox("KET QUA XOA SAN", {"Xoa san thanh cong!"});
+                            view.showMessageBox("KET QUA XOA SAN", {"Xoa san thanh cong!"},Color::Green);
                         }
                         else
                         {
-                            view.showMessageBox("KET QUA XOA SAN", {"Khong tim thay san."});
+                            view.showMessageBox("KET QUA XOA SAN", {"Khong tim thay san."},Color::Red);
                         }
                     }
                     else
                     {
-                        view.showMessageBox("KET QUA XOA SAN", {"Da huy thao tac xoa."});
+                        view.showMessageBox("KET QUA XOA SAN", {"Da huy thao tac xoa."},Color::Red);
                     }
                     view.pause();
                     break;
@@ -174,7 +175,7 @@ int main()
                     if (ok)
                         saveBookingsToFile(bookings, BOOKING_FILE);
 
-                    view.showMessageBox("KET QUA DAT SAN OFFLINE", {msg});
+                    view.showMessageBox("KET QUA DAT SAN OFFLINE", {msg},Color::Green);
                     view.pause();
                     break;
                 }
@@ -192,12 +193,12 @@ int main()
                     std::string err;
                     if (!adminController.getCheckoutCandidates(pitches, bookings, pitchId, lines, err))
                     {
-                        view.showMessageBox("TINH TIEN SAN", {err});
+                        view.showMessageBox("TINH TIEN SAN", {err},Color::Red);
                         view.pause();
                         break;
                     }
 
-                    view.showMessageBox("CAC BOOKING CHUA TINH TIEN", lines);
+                    view.showMessageBox("CAC BOOKING CHUA TINH TIEN", lines,Color::Cyan);
                     view.pause();
 
                     int bookingId = view.showCheckoutChooseBookingForm();
@@ -205,7 +206,7 @@ int main()
                     std::string bill;
                     bool ok = adminController.checkoutPitch(pitches, bookings, pitchId, bookingId, bill);
 
-                    view.showMessageBox("KET QUA TINH TIEN", {bill});
+                    view.showMessageBox("KET QUA TINH TIEN", {bill},Color::Cyan);
 
                     if (ok)
                     {

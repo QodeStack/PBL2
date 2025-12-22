@@ -2,10 +2,10 @@
 #include <utility> // ✅ để dùng std::pair
 #ifndef MENU_VIEW_H
 #define MENU_VIEW_H
-#include <vector>            // ✅ THÊM
-#include "../models/Pitch.h" // ✅ THÊM (để dùng Pitch)
+#include <vector>            
+#include "../models/Pitch.h" 
 #include "../models/Booking.h"
-
+#include "TerminalUI.h"
 struct PitchFormInput
 {
     int id;
@@ -46,11 +46,15 @@ public:
     std::pair<int, bool> showDeletePitchForm() const;
 
     OfflineBookingInput showOfflineBookingForm() const;
-    void showMessageBox(const std::string &title, const std::vector<std::string> &lines) const;
+    //void showMessageBox(const std::string &title, const std::vector<std::string> &lines) const;
+    void showMessageBox(const std::string& title,
+                    const std::vector<std::string>& lines,
+                    Color color = Color::Default) const;
+
     void showUnpaidBookingsScreen(const std::vector<Booking> &bookings,
                                   const std::vector<Pitch> &pitches) const;
 
-    // tính tiền
+    // tính tiềnA
     int showCheckoutChoosePitchForm() const;
     int showCheckoutChooseBookingForm() const;
 };

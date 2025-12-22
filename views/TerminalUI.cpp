@@ -132,3 +132,48 @@ void TerminalUI::drawHLine(int row, int left, int width, char ch) const
     line.push_back('|');
     printAt(row, left, line);
 }
+
+
+////////////////////////////////////////// Chỉnh Màu 
+void TerminalUI::setColor(Color c) const
+{
+    // ANSI color codes
+    const char* code = "\x1b[0m"; // Default
+    switch (c)
+    {
+    case Color::Green:  code = "\x1b[32m"; break;
+    case Color::Red:    code = "\x1b[31m"; break;
+    case Color::Yellow: code = "\x1b[33m"; break;
+    case Color::Cyan:   code = "\x1b[36m"; break;
+    case Color::White:  code = "\x1b[37m"; break;
+    default:            code = "\x1b[0m";  break;
+    }
+    std::cout << code;
+}
+
+void TerminalUI::resetColor() const
+{
+    std::cout << "\x1b[0m";
+}
+
+void TerminalUI::printAtColor(int row, int col, Color c, const std::string& s) const
+{
+    moveCursor(row, col);
+    setColor(c);
+    std::cout << s;
+    resetColor();
+    std::cout.flush();
+}
+
+void TerminalUI::printCenteredInBoxColor(int row, int boxLeft, int boxWidth, Color c, const std::string& s) const
+{
+    // vùng trong box: left+1 .. left+width-2
+    int innerLeft = boxLeft + 1;
+    int innerW    = boxWidth - 2;
+
+    // Căn giữa theo ĐỘ DÀI THẬT CỦA TEXT (không tính ANSI)
+    int col = innerLeft + std::max(0, (innerW - (int)s.size()) / 2);
+
+    printAtColor(row, col, c, s);
+}
+

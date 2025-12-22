@@ -1,37 +1,39 @@
 #include "CustomerController.h"
 #include <iostream>
-#include <limits>  // để dùng std::numeric_limits
+#include <limits> // để dùng std::numeric_limits
 #include <algorithm>
 #include "../views/TerminalUI.h"
 
-void CustomerController::viewAllPitches(const std::vector<Pitch>& pitches) const
+void CustomerController::viewAllPitches(const std::vector<Pitch> &pitches) const
 {
     TerminalUI ui;
-    ui.init();     // ✅ nên bật ANSI (moveCursor dùng ANSI)
+    ui.init(); // ✅ nên bật ANSI (moveCursor dùng ANSI)
     ui.clear();
 
     TermSize ts = ui.getSize();
 
     // Box size an toàn (tránh tràn màn hình)
-    int boxWidth  = std::min(110, ts.cols - 4);
-    int boxHeight = std::min(28,  ts.rows - 4);
+    int boxWidth = std::min(110, ts.cols - 4);
+    int boxHeight = std::min(28, ts.rows - 4);
 
-    if (boxWidth < 60)  boxWidth  = std::min(ts.cols - 2, 60);
-    if (boxHeight < 10) boxHeight = std::min(ts.rows - 2, 10);
+    if (boxWidth < 60)
+        boxWidth = std::min(ts.cols - 2, 60);
+    if (boxHeight < 10)
+        boxHeight = std::min(ts.rows - 2, 10);
 
-    int top  = ui.centerTop(boxHeight);
+    int top = ui.centerTop(boxHeight);
     int left = ui.centerLeft(boxWidth);
 
     ui.drawBox(top, left, boxHeight, boxWidth);
 
     // vùng in bên trong box
     int innerLeft = left + 1;
-    int innerW    = boxWidth - 2;
+    int innerW = boxWidth - 2;
 
     // Title
     std::string title = "TAT CA SAN";
     int titleCol = innerLeft + std::max(0, (innerW - (int)title.size()) / 2);
-    ui.printAt(top + 1, titleCol, title);
+    ui.printAtColor(top + 1, titleCol, Color::Yellow, title);
 
     // separator
     ui.drawHLine(top + 2, left, boxWidth, '-');
@@ -48,38 +50,42 @@ void CustomerController::viewAllPitches(const std::vector<Pitch>& pitches) const
     }
 
     int colStart = innerLeft + 1;
-    int usableW  = innerW - 2;
+    int usableW = innerW - 2;
 
     const int sepTotal = 3 * 3; // " | " * 3
     int contentW = usableW - sepTotal;
-    if (contentW < 20) contentW = 20;
+    if (contentW < 20)
+        contentW = 20;
 
     int base = contentW / 4;
-    int rem  = contentW % 4;
+    int rem = contentW % 4;
 
-    int wId    = base + (rem > 0 ? 1 : 0);
-    int wName  = base + (rem > 1 ? 1 : 0);
+    int wId = base + (rem > 0 ? 1 : 0);
+    int wName = base + (rem > 1 ? 1 : 0);
     int wPrice = base + (rem > 2 ? 1 : 0);
-    int wSize  = base;
+    int wSize = base;
 
-    auto pad = [](const std::string& s, int w) {
-        if ((int)s.size() >= w) return s.substr(0, w);
+    auto pad = [](const std::string &s, int w)
+    {
+        if ((int)s.size() >= w)
+            return s.substr(0, w);
         return s + std::string(w - (int)s.size(), ' ');
     };
 
     auto printRow = [&](int r,
-                        const std::string& id,
-                        const std::string& name,
-                        const std::string& price,
-                        const std::string& size)
+                        const std::string &id,
+                        const std::string &name,
+                        const std::string &price,
+                        const std::string &size)
     {
-        std::string sId    = pad(ui.fitText(id,    wId),    wId);
-        std::string sName  = pad(ui.fitText(name,  wName),  wName);
+        std::string sId = pad(ui.fitText(id, wId), wId);
+        std::string sName = pad(ui.fitText(name, wName), wName);
         std::string sPrice = pad(ui.fitText(price, wPrice), wPrice);
-        std::string sSize  = pad(ui.fitText(size,  wSize),  wSize);
+        std::string sSize = pad(ui.fitText(size, wSize), wSize);
 
         std::string line = sId + " | " + sName + " | " + sPrice + " | " + sSize;
-        if ((int)line.size() > usableW) line = line.substr(0, usableW);
+        if ((int)line.size() > usableW)
+            line = line.substr(0, usableW);
 
         ui.printAt(r, colStart, line);
     };
@@ -92,9 +98,10 @@ void CustomerController::viewAllPitches(const std::vector<Pitch>& pitches) const
     row++;
 
     int maxRows = top + boxHeight - 2;
-    for (const auto& p : pitches)
+    for (const auto &p : pitches)
     {
-        if (row > maxRows) break;
+        if (row > maxRows)
+            break;
 
         printRow(row,
                  std::to_string(p.getId()),
@@ -109,63 +116,63 @@ void CustomerController::viewAllPitches(const std::vector<Pitch>& pitches) const
     // Không pause ở đây -> main đã gọi view.pause()
 }
 
-
-void CustomerController::viewFreePitches(const std::vector<Pitch>& pitches,
-                                         const std::vector<Booking>& bookings) const
+void CustomerController::viewFreePitches(const std::vector<Pitch> &pitches,
+                                         const std::vector<Booking> &bookings) const
 {
     TerminalUI ui;
 
     // ===== (1) UI nhập timeSlot trong khung =====
     TermSize ts = ui.getSize();
 
-    int boxWidth  = std::min(110, ts.cols - 4);
-    int boxHeight = std::min(30,  ts.rows - 4);
-    if (boxWidth < 70)  boxWidth  = std::min(ts.cols - 2, 70);
-    if (boxHeight < 14) boxHeight = std::min(ts.rows - 2, 14);
+    int boxWidth = std::min(110, ts.cols - 4);
+    int boxHeight = std::min(30, ts.rows - 4);
+    if (boxWidth < 70)
+        boxWidth = std::min(ts.cols - 2, 70);
+    if (boxHeight < 14)
+        boxHeight = std::min(ts.rows - 2, 14);
 
-    int top  = ui.centerTop(boxHeight);
+    int top = ui.centerTop(boxHeight);
     int left = ui.centerLeft(boxWidth);
 
     ui.clear();
     ui.drawBox(top, left, boxHeight, boxWidth);
 
     int innerLeft = left + 1;
-    int innerW    = boxWidth - 2;
+    int innerW = boxWidth - 2;
 
     std::string title = "SAN TRONG THEO KHUNG GIO";
     int titleCol = innerLeft + std::max(0, (innerW - (int)title.size()) / 2);
-    ui.printAt(top + 1, titleCol, title);
+    ui.printAtColor(top + 1, titleCol, Color::Yellow, title);
     ui.drawHLine(top + 2, left, boxWidth, '-');
 
     std::string ask = "Nhap khung gio (VD: 2025-12-01 18:00-19:00):";
-    ui.printAt(top + 4, innerLeft + 2, ui.fitText(ask, innerW - 4));
+    ui.printAtColor(top + 4, innerLeft + 2, Color::Cyan, ui.fitText(ask, innerW - 4));
     ui.printAt(top + 6, innerLeft + 2, "> ");
 
     // Xóa '\n' còn lại trong buffer trước khi getline (đúng logic cũ)
     std::cin.clear();
-    
 
     ui.moveCursor(top + 6, innerLeft + 4);
     std::string timeSlot;
     std::getline(std::cin >> std::ws, timeSlot);
-    
 
     // ===== (2) LỌC đúng logic cũ: TRÙNG CHUỖI timeSlot =====
-    std::vector<const Pitch*> freeList;
+    std::vector<const Pitch *> freeList;
     freeList.reserve(pitches.size());
 
-    for (const auto& p : pitches) {
+    for (const auto &p : pitches)
+    {
         bool occupied = false;
-        for (const auto& b : bookings) {
-            if (b.getPitchId() == p.getId()
-                && b.getTimeSlot() == timeSlot
-                && b.getStatus() == BookingStatus::Active)
+        for (const auto &b : bookings)
+        {
+            if (b.getPitchId() == p.getId() && b.getTimeSlot() == timeSlot && b.getStatus() == BookingStatus::Active)
             {
                 occupied = true;
                 break;
             }
         }
-        if (!occupied) freeList.push_back(&p);
+        if (!occupied)
+            freeList.push_back(&p);
     }
 
     // ===== (3) Render kết quả UI bảng 4 cột cách đều =====
@@ -174,10 +181,13 @@ void CustomerController::viewFreePitches(const std::vector<Pitch>& pitches,
 
     std::string title2 = "SAN TRONG O KHUNG GIO: " + timeSlot;
     int title2Col = innerLeft + std::max(0, (innerW - (int)title2.size()) / 2);
-    ui.printAt(top + 1, title2Col, ui.fitText(title2, innerW));
+    // ui.printAtColor(top + 1, title2Col,Color::Yellow ,ui.fitText(title2, innerW));
+    ui.printAtColor(top + 1, title2Col, Color::Yellow, title2);
+
     ui.drawHLine(top + 2, left, boxWidth, '-');
 
-    if (freeList.empty()) {
+    if (freeList.empty())
+    {
         std::string msg = "Khong co san trong o khung gio nay.";
         int msgCol = innerLeft + std::max(0, (innerW - (int)msg.size()) / 2);
         ui.printAt(top + 5, msgCol, msg);
@@ -188,39 +198,43 @@ void CustomerController::viewFreePitches(const std::vector<Pitch>& pitches,
     }
 
     int colStart = innerLeft + 1;
-    int usableW  = innerW - 2;
+    int usableW = innerW - 2;
 
     // 4 cột cách đều nhau
     const int sepTotal = 3 * 3; // " | " * 3
     int contentW = usableW - sepTotal;
-    if (contentW < 20) contentW = 20;
+    if (contentW < 20)
+        contentW = 20;
 
     int base = contentW / 4;
-    int rem  = contentW % 4;
+    int rem = contentW % 4;
 
-    int wId    = base + (rem > 0 ? 1 : 0);
-    int wName  = base + (rem > 1 ? 1 : 0);
+    int wId = base + (rem > 0 ? 1 : 0);
+    int wName = base + (rem > 1 ? 1 : 0);
     int wPrice = base + (rem > 2 ? 1 : 0);
-    int wSize  = base;
+    int wSize = base;
 
-    auto pad = [](const std::string& s, int w) {
-        if ((int)s.size() >= w) return s.substr(0, w);
+    auto pad = [](const std::string &s, int w)
+    {
+        if ((int)s.size() >= w)
+            return s.substr(0, w);
         return s + std::string(w - (int)s.size(), ' ');
     };
 
     auto printRow = [&](int r,
-                        const std::string& id,
-                        const std::string& name,
-                        const std::string& price,
-                        const std::string& size)
+                        const std::string &id,
+                        const std::string &name,
+                        const std::string &price,
+                        const std::string &size)
     {
-        std::string sId    = pad(ui.fitText(id,    wId),    wId);
-        std::string sName  = pad(ui.fitText(name,  wName),  wName);
+        std::string sId = pad(ui.fitText(id, wId), wId);
+        std::string sName = pad(ui.fitText(name, wName), wName);
         std::string sPrice = pad(ui.fitText(price, wPrice), wPrice);
-        std::string sSize  = pad(ui.fitText(size,  wSize),  wSize);
+        std::string sSize = pad(ui.fitText(size, wSize), wSize);
 
         std::string line = sId + " | " + sName + " | " + sPrice + " | " + sSize;
-        if ((int)line.size() > usableW) line = line.substr(0, usableW);
+        if ((int)line.size() > usableW)
+            line = line.substr(0, usableW);
 
         ui.printAt(r, colStart, line);
     };
@@ -233,10 +247,12 @@ void CustomerController::viewFreePitches(const std::vector<Pitch>& pitches,
     row++;
 
     int maxRows = top + boxHeight - 2;
-    for (const auto* pp : freeList) {
-        if (row > maxRows) break;
+    for (const auto *pp : freeList)
+    {
+        if (row > maxRows)
+            break;
 
-        const Pitch& p = *pp;
+        const Pitch &p = *pp;
         printRow(row,
                  std::to_string(p.getId()),
                  p.getName(),
@@ -249,34 +265,41 @@ void CustomerController::viewFreePitches(const std::vector<Pitch>& pitches,
     ui.printAt(top + boxHeight - 2, innerLeft + 2, ui.fitText(hint, innerW - 4));
 }
 
-void CustomerController::bookPitch(const std::vector<Pitch>& pitches,
-                                   std::vector<Booking>& bookings,
-                                   const std::string& username)
+void CustomerController::bookPitch(const std::vector<Pitch> &pitches,
+                                   std::vector<Booking> &bookings,
+                                   const std::string &username)
 {
     TerminalUI ui;
     TermSize ts = ui.getSize();
 
-    int boxWidth  = std::min(110, ts.cols - 4);
-    int boxHeight = std::min(26,  ts.rows - 4);
-    if (boxWidth < 70)  boxWidth  = std::min(ts.cols - 2, 70);
-    if (boxHeight < 14) boxHeight = std::min(ts.rows - 2, 14);
+    int boxWidth = std::min(110, ts.cols - 4);
+    int boxHeight = std::min(26, ts.rows - 4);
+    if (boxWidth < 70)
+        boxWidth = std::min(ts.cols - 2, 70);
+    if (boxHeight < 14)
+        boxHeight = std::min(ts.rows - 2, 14);
 
-    int top  = ui.centerTop(boxHeight);
+    int top = ui.centerTop(boxHeight);
     int left = ui.centerLeft(boxWidth);
 
-    auto showMsg = [&](const std::string& title, const std::string& msg) {
+    auto showMsg = [&](const std::string &title, const std::string &msg)
+    {
         ui.clear();
         ui.drawBox(top, left, boxHeight, boxWidth);
 
         int innerLeft = left + 1;
-        int innerW    = boxWidth - 2;
+        int innerW = boxWidth - 2;
 
         int titleCol = innerLeft + std::max(0, (innerW - (int)title.size()) / 2);
-        ui.printAt(top + 1, titleCol, title);
-        ui.drawHLine(top + 2, left, boxWidth, '-');
 
-        ui.printAt(top + 5, innerLeft + 2, ui.fitText(msg, innerW - 4));
-
+            ui.printAt(top + 1, titleCol, title);
+            ui.drawHLine(top + 2, left, boxWidth, '-');
+        if (title == "KET QUA DAT SAN THAT BAI"){
+            ui.printAtColor(top + 5, innerLeft + 2,Color::Red, ui.fitText(msg, innerW - 4));
+        } 
+        if (title == "KET QUA DAT SAN"){
+            ui.printAtColor(top + 5, innerLeft + 2,Color::Green, ui.fitText(msg, innerW - 4));
+        }
         std::string hint = "Nhan ENTER de quay lai...";
         ui.printAt(top + boxHeight - 2, innerLeft + 2, ui.fitText(hint, innerW - 4));
     };
@@ -286,17 +309,25 @@ void CustomerController::bookPitch(const std::vector<Pitch>& pitches,
     ui.drawBox(top, left, boxHeight, boxWidth);
 
     int innerLeft = left + 1;
-    int innerW    = boxWidth - 2;
+    int innerW = boxWidth - 2;
 
     std::string title = "DAT SAN (CUSTOMER)";
     int titleCol = innerLeft + std::max(0, (innerW - (int)title.size()) / 2);
-    ui.printAt(top + 1, titleCol, title);
+
+    ui.printAtColor(top + 1, titleCol, Color::Yellow, title);
     ui.drawHLine(top + 2, left, boxWidth, '-');
 
-    std::string uline = "Tai khoan: " + username;
-    ui.printAt(top + 4, innerLeft + 2, ui.fitText(uline, innerW - 4));
+    std::string label = "Tai khoan: ";
+    ui.printAtColor(top + 4, innerLeft + 2, Color::Cyan, label);
 
-    ui.printAt(top + 6, innerLeft + 2, "Nhap ID san muon dat: ");
+    // phần còn lại của dòng để in username (tránh tràn khung)
+    int maxUserW = innerW - 4 - (int)label.size();
+    std::string userText = ui.fitText(username, maxUserW);
+
+    // in username màu trắng (Default hoặc White tùy bạn định nghĩa)
+    ui.printAtColor(top + 4, innerLeft + 2 + (int)label.size(), Color::Default, userText);
+
+    ui.printAtColor(top + 6, innerLeft + 2, Color::Cyan, "Nhap ID san muon dat: ");
     ui.printAt(top + 7, innerLeft + 2, "> ");
 
     // nhập ID (đúng logic cũ: cin >> id)
@@ -305,15 +336,18 @@ void CustomerController::bookPitch(const std::vector<Pitch>& pitches,
     std::cin >> id;
 
     // ====== TIM SAN ======
-    const Pitch* selectedPitch = nullptr;
-    for (const auto& p : pitches) {
-        if (p.getId() == id) {
+    const Pitch *selectedPitch = nullptr;
+    for (const auto &p : pitches)
+    {
+        if (p.getId() == id)
+        {
             selectedPitch = &p;
             break;
         }
     }
 
-    if (!selectedPitch) {
+    if (!selectedPitch)
+    {
         showMsg("KET QUA DAT SAN", "Khong tim thay san.");
         return;
     }
@@ -323,16 +357,16 @@ void CustomerController::bookPitch(const std::vector<Pitch>& pitches,
     ui.clear();
     ui.drawBox(top, left, boxHeight, boxWidth);
 
-    ui.printAt(top + 1, titleCol, title);
+    ui.printAtColor(top + 1, titleCol, Color::Yellow, title);
     ui.drawHLine(top + 2, left, boxWidth, '-');
 
     std::string info1 = "San: " + selectedPitch->getName() +
                         " | Gia: " + std::to_string((long long)selectedPitch->getPrice()) +
                         " | Loai: " + std::to_string(selectedPitch->getSize()) + " nguoi";
-    ui.printAt(top + 4, innerLeft + 2, ui.fitText(info1, innerW - 4));
+    ui.printAtColor(top + 4, innerLeft + 2, Color::Cyan, ui.fitText(info1, innerW - 4));
 
     std::string ask = "Nhap khung gio muon dat (VD: 2025-12-01 18:00-19:00):";
-    ui.printAt(top + 6, innerLeft + 2, ui.fitText(ask, innerW - 4));
+    ui.printAtColor(top + 6, innerLeft + 2, Color::Cyan, ui.fitText(ask, innerW - 4));
     ui.printAt(top + 7, innerLeft + 2, "> ");
 
     ui.moveCursor(top + 7, innerLeft + 4);
@@ -340,12 +374,13 @@ void CustomerController::bookPitch(const std::vector<Pitch>& pitches,
     std::getline(std::cin >> std::ws, timeSlot); // ✅ fix lỗi nhập lần 2 mới lấy
 
     // ====== CHECK TRUNG (Y LOGIC CU) ======
-    for (const auto& b : bookings) {
+    for (const auto &b : bookings)
+    {
         if (b.getPitchId() == id &&
             b.getTimeSlot() == timeSlot &&
             b.getStatus() == BookingStatus::Active)
         {
-            showMsg("KET QUA DAT SAN",
+            showMsg("KET QUA DAT SAN THAT BAI",
                     "Khung gio nay cho san nay da duoc dat. Vui long chon khung gio khac.");
             return;
         }
@@ -359,8 +394,7 @@ void CustomerController::bookPitch(const std::vector<Pitch>& pitches,
         "",
         "",
         BookingStatus::Active,
-        0.0
-    );
+        0.0);
 
     showMsg("KET QUA DAT SAN",
             "Dat san thanh cong! San " + selectedPitch->getName() + " vao khung gio: " + timeSlot);

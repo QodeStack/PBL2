@@ -54,11 +54,9 @@ bool AuthController::registerCustomer(const std::string& username, const std::st
 
 
 
-void AuthController::loadCustomersFromFile(const std::string& filename)
-{
+void AuthController::loadCustomersFromFile(const std::string& filename){
     loadUsersFromFile(users, filename);
 }
-void AuthController::saveCustomersToFile(const std::string& filename) const
-{
+void AuthController::saveCustomersToFile(const std::string& filename) const{
     saveUsersToFile(users, filename);
 }

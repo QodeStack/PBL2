@@ -6,11 +6,8 @@
 #include <iomanip>
 #include <sstream>
 
-// helper đọc choice an toàn
-static int readChoiceInBox(TerminalUI& ui,
-                           int inputRow, int inputCol,
-                           int msgRow, int msgCol,
-                           int minChoice, int maxChoice)
+// đọc choice an toàn
+static int readChoiceInBox(TerminalUI& ui,int inputRow, int inputCol,int msgRow, int msgCol,int minChoice, int maxChoice)
 {
     while (true)
     {
@@ -59,7 +56,7 @@ int MenuView::showMainMenu() const
 
     ui.drawBox(top, left, boxH, boxW);
 
-    ui.printCentered(top + 1, "HE THONG QUAN LY SAN BONG");
+    ui.printCenteredInBoxColor(top + 1, left, boxW,Color::Yellow, "HE THONG QUAN LY SAN BONG");
     ui.printAt(top + 3, left + 3, "1. Dang nhap");
     ui.printAt(top + 4, left + 3, "2. Dang ky (khach hang)");
     ui.printAt(top + 5, left + 3, "0. Thoat");
@@ -88,7 +85,7 @@ int MenuView::showAdminMenu() const
 
     ui.drawBox(top, left, boxH, boxW);
 
-    ui.printCentered(top + 1, "MENU ADMIN");
+    ui.printCenteredInBoxColor(top + 1, left, boxW,Color::Yellow, "MENU ADMIN");
     ui.printAt(top + 3, left + 3, "1. Xem danh sach san");
     ui.printAt(top + 4, left + 3, "2. Them san (Create)");
     ui.printAt(top + 5, left + 3, "3. Sua san (Update)");
@@ -100,8 +97,6 @@ int MenuView::showAdminMenu() const
     ui.printAt(top + 12, left + 3, "Chon: ");
 
     ui.moveCursor(top + 12, left + 9);
-    ui.moveCursor(top + 12, left + 9);
-
 // admin menu cho 0..7
 return readChoiceInBox(ui,
                        top + 12, left + 9,
@@ -122,7 +117,7 @@ int MenuView::showCustomerMenu() const
 
     ui.drawBox(top, left, boxH, boxW);
 
-    ui.printCentered(top + 1, "MENU KHACH HANG");
+    ui.printCenteredInBoxColor(top + 1,left,boxW,Color::Yellow,"MENU KHACH HANG");
     ui.printAt(top + 3, left + 3, "1. Xem tat ca san");
     ui.printAt(top + 4, left + 3, "2. Xem san trong");
     ui.printAt(top + 5, left + 3, "3. Dat san");
@@ -152,10 +147,10 @@ std::pair<std::string, std::string> MenuView::showLoginForm() const
 
     ui.drawBox(top, left, boxH, boxW);
 
-    ui.printCentered(top + 1, "DANG NHAP");
-    ui.printAt(top + 3, left + 3, "Ten Nguoi Dung: ");
-    ui.printAt(top + 5, left + 3, "Mat Khau : ");
-    ui.printAt(top + 8, left + 3, "Nhap 0 o Username de quay lai");
+    ui.printCenteredInBoxColor(top + 1, left, boxW,Color::Yellow, "DANG NHAP");
+    ui.printAtColor(top + 3, left + 3,Color::Cyan ,"Ten nguoi dung: ");
+    ui.printAtColor(top + 5, left + 3,Color::Cyan,"mat khau : ");
+    ui.printAt(top + 8, left + 3,"Nhap 0+Enter vao Ten nguoi dung de quay lai");
 
     std::string username, password;
 
@@ -194,17 +189,18 @@ std::pair<std::string, std::string> MenuView::showRegisterForm()
 
     std::string title = "DANG KY";
     int titleCol = innerLeft + std::max(0, (innerW - (int)title.size()) / 2);
-    ui.printAt(top + 1, titleCol, title);
+
+    ui.printAtColor(top + 1, titleCol, Color::Yellow, title);
     ui.drawHLine(top + 2, left, boxWidth, '-');
 
     // Labels
     std::string lblUser = "Ten nguoi dung: ";
     std::string lblPass = "Mat khau     : ";
 
-    ui.printAt(top + 4, innerLeft + 2, lblUser);
-    ui.printAt(top + 6, innerLeft + 2, lblPass);
+    ui.printAtColor(top + 4, innerLeft + 2,Color::Cyan ,lblUser);
+    ui.printAtColor(top + 6, innerLeft + 2,Color::Cyan, lblPass);
 
-    ui.printAt(top + boxHeight - 3, innerLeft + 2, "Nhap 0 o Username de quay lai");
+    ui.printAt(top + boxHeight - 3, innerLeft + 2, "Nhap 0+Enter vao Ten nguoi dung de quay lai");
 
     // Input (nhap ngay sau label)
     std::string username, password;
@@ -248,7 +244,7 @@ void MenuView::showPitchesScreen(const std::vector<Pitch>& pitches) const {
     int left = ui.centerLeft(boxW);
 
     ui.drawBox(top, left, boxH, boxW);
-    ui.printCentered(top + 1, "DANH SACH SAN");
+    ui.printCenteredInBoxColor(top + 1,left,boxW,Color::Yellow, "DANH SACH SAN");
 
     // ====== CĂN LỀ + GAP ======
     const int marginL = 4;
@@ -329,7 +325,7 @@ void MenuView::showPitchesScreen(const std::vector<Pitch>& pitches) const {
     ui.moveCursor(top + boxH - 2, left + 1 + marginL + (int)std::string("Nhan ENTER de quay lai...").size());
 }
 
-// Tạo sân 
+// Tạo sân : hiện thị ra giao diện để mình nhập dô  
 PitchFormInput MenuView::showCreatePitchForm() const {
     TerminalUI ui;
     ui.init();
@@ -341,12 +337,12 @@ PitchFormInput MenuView::showCreatePitchForm() const {
     int left = ui.centerLeft(boxW);
 
     ui.drawBox(top, left, boxH, boxW);
-    ui.printCentered(top + 1, "THEM SAN");
+    ui.printCenteredInBoxColor(top + 1,left,boxW,Color::Yellow, "THEM SAN");
 
-    ui.printAt(top + 3, left + 3, "ID san   : ");
-    ui.printAt(top + 5, left + 3, "Ten san  : ");
-    ui.printAt(top + 7, left + 3, "Gia      : ");
-    ui.printAt(top + 9, left + 3, "Loai san (5/7/11) : ");
+    ui.printAtColor(top + 3, left + 3,Color::Cyan, "ID san   : ");
+    ui.printAtColor(top + 5, left + 3,Color::Cyan, "Ten san  : ");
+    ui.printAtColor(top + 7, left + 3,Color::Cyan, "Gia      : ");
+    ui.printAtColor(top + 9, left + 3,Color::Cyan, "Loai san (5/7/11) : ");
 
     PitchFormInput in{};
 
@@ -381,12 +377,12 @@ UpdatePitchInput MenuView::showUpdatePitchForm() const {
     int left = ui.centerLeft(boxW);
 
     ui.drawBox(top, left, boxH, boxW);
-    ui.printCentered(top + 1, "SUA SAN");
+    ui.printCenteredInBoxColor(top + 1,left,boxW,Color::Yellow, "SUA SAN");
 
-    ui.printAt(top + 3, left + 3, "ID san can sua        : ");
-    ui.printAt(top + 5, left + 3, "Ten moi (bo trong=giu): ");
-    ui.printAt(top + 7, left + 3, "Gia moi (0=giu)       : ");
-    ui.printAt(top + 9, left + 3, "Loai moi (0=giu)      : ");
+    ui.printAtColor(top + 3, left + 3,Color::Cyan, "ID san can sua        : ");
+    ui.printAtColor(top + 5, left + 3,Color::Cyan, "Ten moi (bo trong=giu): ");
+    ui.printAtColor(top + 7, left + 3,Color::Cyan, "Gia moi (0=giu)       : ");
+    ui.printAtColor(top + 9, left + 3,Color::Cyan, "Loai moi (0=giu)      : ");
 
     UpdatePitchInput in{};
     // ID
@@ -425,16 +421,16 @@ std::pair<int, bool> MenuView::showDeletePitchForm() const {
     int left = ui.centerLeft(boxW);
 
     ui.drawBox(top, left, boxH, boxW);
-    ui.printCentered(top + 1, "XOA SAN");
+    ui.printCenteredInBoxColor(top + 1,left,boxW,Color::Yellow, "XOA SAN");
 
-    ui.printAt(top + 4, left + 3, "Nhap ID san muon xoa : ");
+    ui.printAtColor(top + 4, left + 3, Color::Cyan,"Nhap ID san muon xoa : ");
 
     int id;
     ui.moveCursor(top + 4, left + 27);
     std::cin >> id;
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-    ui.printAt(top + 6, left + 3, "Ban chac chan muon xoa? (Y/N) : ");
+    ui.printAtColor(top + 6, left + 3,Color::Cyan ,"Ban chac chan muon xoa? (Y/N) : ");
 
     char yn;
     ui.moveCursor(top + 6, left + 38);
@@ -461,10 +457,10 @@ OfflineBookingInput MenuView::showOfflineBookingForm() const {
     int left = ui.centerLeft(boxW);
 
     ui.drawBox(top, left, boxH, boxW);
-    ui.printCentered(top + 1, "DAT SAN OFFLINE TAI QUAY");
+    ui.printCenteredInBoxColor(top + 1,left,boxW,Color::Yellow, "DAT SAN OFFLINE TAI QUAY");
 
-    ui.printAt(top + 4, left + 3, "ID san              : ");
-    ui.printAt(top + 6, left + 3, "Ten khach (bo trong) : ");
+    ui.printAtColor(top + 4, left + 3,Color::Cyan ,"ID san              : ");
+    ui.printAtColor(top + 6, left + 3,Color::Cyan,"Ten khach (bo trong) : ");
 
     OfflineBookingInput in{};
 
@@ -493,7 +489,9 @@ static std::vector<std::string> splitLines(const std::string& s) {
     lines.push_back(cur);
     return lines;
 }
-void MenuView::showMessageBox(const std::string& title, const std::vector<std::string>& lines) const {
+void MenuView::showMessageBox(const std::string& title,
+                              const std::vector<std::string>& lines,
+                              Color color) const {
     TerminalUI ui;
     ui.init();
     ui.clear();
@@ -504,13 +502,13 @@ void MenuView::showMessageBox(const std::string& title, const std::vector<std::s
     int left = ui.centerLeft(boxW);
 
     ui.drawBox(top, left, boxH, boxW);
-    ui.printCentered(top + 1, title);
+    ui.printCenteredInBoxColor(top + 1,left,boxW, Color::Yellow,title);
 
     int r = top + 4;
 for (const auto& s : lines) {
     auto parts = splitLines(s);               // tách theo '\n'
     for (const auto& oneLine : parts) {
-        ui.printAt(r++, left + 3, oneLine);   // mỗi lần in 1 dòng, không có '\n'
+        ui.printAtColor(r++, left + 3, color, oneLine);   // ✅ in theo màu  // mỗi lần in 1 dòng, không có '\n'
         if (r >= top + boxH - 3) break;
     }
     if (r >= top + boxH - 3) break;
@@ -520,6 +518,8 @@ for (const auto& s : lines) {
     ui.moveCursor(top + boxH - 2, left + 3 + (int)std::string("Nhan ENTER de quay lai...").size());
 }
 
+
+// Danh Sách chưa tính tiền
 void MenuView::showUnpaidBookingsScreen(const std::vector<Booking>& bookings,const std::vector<Pitch>& pitches) const
 {
     TerminalUI ui;
@@ -532,7 +532,7 @@ void MenuView::showUnpaidBookingsScreen(const std::vector<Booking>& bookings,con
     int left = ui.centerLeft(boxW);
 
     ui.drawBox(top, left, boxH, boxW);
-    ui.printCentered(top + 1, "DANH SACH LICH DAT CHUA TINH TIEN");
+    ui.printCenteredInBoxColor(top + 1,left,boxW,Color::Yellow, "DANH SACH LICH DAT CHUA TINH TIEN");
 
     const int marginL = 3;
     const int marginR = 3;
@@ -634,6 +634,8 @@ void MenuView::showUnpaidBookingsScreen(const std::vector<Booking>& bookings,con
             << std::setw(wTONG)  << total;
 
         printRow(row++, oss.str());
+
+        
         printed++;
 
         if (row >= top + boxH - 3) break;
@@ -649,14 +651,13 @@ void MenuView::showUnpaidBookingsScreen(const std::vector<Booking>& bookings,con
 }
 
 // tính tiền 
-
 int MenuView::showCheckoutChoosePitchForm() const {
     TerminalUI ui; ui.init(); ui.clear();
     const int boxW=75, boxH=12;
     int top=ui.centerTop(boxH), left=ui.centerLeft(boxW);
     ui.drawBox(top,left,boxH,boxW);
-    ui.printCentered(top+1,"TINH TIEN SAN");
-    ui.printAt(top+4,left+3,"Nhap ID san can tinh tien: ");
+    ui.printCenteredInBoxColor(top + 1,left,boxW,Color::Yellow, "TINH TIEN SAN");
+    ui.printAtColor(top+4,left+3,Color::Cyan,"Nhap ID san can tinh tien: ");
     int pitchId;
     ui.moveCursor(top+4,left+31);
     std::cin >> pitchId;
@@ -671,8 +672,8 @@ int MenuView::showCheckoutChooseBookingForm() const {
     const int boxW=75, boxH=12;
     int top=ui.centerTop(boxH), left=ui.centerLeft(boxW);
     ui.drawBox(top,left,boxH,boxW);
-    ui.printCentered(top+1,"CHON BOOKING DE TINH TIEN");
-    ui.printAt(top+4,left+3,"Nhap Booking ID can tinh tien: ");
+    ui.printCenteredInBoxColor(top+1,left,boxW,Color::Yellow,"CHON BOOKING DE TINH TIEN");
+    ui.printAtColor(top+4,left+3,Color::Cyan,"Nhap Booking ID can tinh tien: ");
     int bookingId;
     ui.moveCursor(top+4,left+34);
     std::cin >> bookingId;
