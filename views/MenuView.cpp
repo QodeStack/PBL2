@@ -236,7 +236,7 @@ void MenuView::pause() const
     std::getline(std::cin, dummy);
 }
 
-
+// Xem danh sách sân 
 void MenuView::showPitchesScreen(const std::vector<Pitch>& pitches) const {
     TerminalUI ui;
     ui.init();
@@ -329,6 +329,7 @@ void MenuView::showPitchesScreen(const std::vector<Pitch>& pitches) const {
     ui.moveCursor(top + boxH - 2, left + 1 + marginL + (int)std::string("Nhan ENTER de quay lai...").size());
 }
 
+// Tạo sân 
 PitchFormInput MenuView::showCreatePitchForm() const {
     TerminalUI ui;
     ui.init();
@@ -368,6 +369,7 @@ PitchFormInput MenuView::showCreatePitchForm() const {
     return in;
 }
 
+// Cập nhật 
 UpdatePitchInput MenuView::showUpdatePitchForm() const {
     TerminalUI ui;
     ui.init();
@@ -411,6 +413,7 @@ UpdatePitchInput MenuView::showUpdatePitchForm() const {
     return in;
 }
 
+// Xóa Sân 
 std::pair<int, bool> MenuView::showDeletePitchForm() const {
     TerminalUI ui;
     ui.init();
@@ -446,6 +449,7 @@ std::pair<int, bool> MenuView::showDeletePitchForm() const {
     return {id, confirm};
 }
 
+// Đặt sân offline
 OfflineBookingInput MenuView::showOfflineBookingForm() const {
     TerminalUI ui;
     ui.init();

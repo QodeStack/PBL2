@@ -1,28 +1,32 @@
-#include <string>   // ✅ để dùng std::string
-#include <utility>  // ✅ để dùng std::pair
+#include <string>  // ✅ để dùng std::string
+#include <utility> // ✅ để dùng std::pair
 #ifndef MENU_VIEW_H
 #define MENU_VIEW_H
-#include <vector>          // ✅ THÊM
+#include <vector>            // ✅ THÊM
 #include "../models/Pitch.h" // ✅ THÊM (để dùng Pitch)
 #include "../models/Booking.h"
 
-struct PitchFormInput {
+struct PitchFormInput
+{
     int id;
     std::string name;
     double price;
     int size;
-    };
-struct UpdatePitchInput {
+};
+struct UpdatePitchInput
+{
     int id;
     std::string newName;
     double newPrice;
     int newSize;
 };
-struct OfflineBookingInput {
+struct OfflineBookingInput
+{
     int pitchId;
     std::string customerName;
 };
-class MenuView {
+class MenuView
+{
 public:
     int showMainMenu() const;
     int showAdminMenu() const;
@@ -30,26 +34,25 @@ public:
 
     std::pair<std::string, std::string> showLoginForm() const;
     std::pair<std::string, std::string> showRegisterForm();
+
     void pause() const;
 
-     // ✅ THÊM HÀM NÀY
-    void showPitchesScreen(const std::vector<Pitch>& pitches) const;
+    void showPitchesScreen(const std::vector<Pitch> &pitches) const;
 
+    PitchFormInput showCreatePitchForm() const;
 
-        PitchFormInput showCreatePitchForm() const;
+    UpdatePitchInput showUpdatePitchForm() const;
 
-        UpdatePitchInput showUpdatePitchForm() const;
+    std::pair<int, bool> showDeletePitchForm() const;
 
-        std::pair<int, bool> showDeletePitchForm() const;
+    OfflineBookingInput showOfflineBookingForm() const;
+    void showMessageBox(const std::string &title, const std::vector<std::string> &lines) const;
+    void showUnpaidBookingsScreen(const std::vector<Booking> &bookings,
+                                  const std::vector<Pitch> &pitches) const;
 
-        OfflineBookingInput showOfflineBookingForm() const;
-        void showMessageBox(const std::string& title, const std::vector<std::string>& lines) const;
-        void showUnpaidBookingsScreen(const std::vector<Booking>& bookings,
-                              const std::vector<Pitch>& pitches) const;
-
-        // tính tiền 
-int showCheckoutChoosePitchForm() const;
-int showCheckoutChooseBookingForm() const;
+    // tính tiền
+    int showCheckoutChoosePitchForm() const;
+    int showCheckoutChooseBookingForm() const;
 };
 
 #endif // MENU_VIEW_H

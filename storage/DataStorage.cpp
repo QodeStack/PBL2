@@ -3,8 +3,9 @@
 #include <sstream>
 #include <iostream>
 
-// ---------------- PITCHES ----------------
+//////////////////////////////// Pitches //////////////////////////////////////////
 
+// load các sân đã được tạo từ file pitches.txt khi dự án bắt đầu được build 
 void loadPitchesFromFile(std::vector<Pitch>& pitches, const std::string& filename) {
     pitches.clear();
 
@@ -36,6 +37,7 @@ void loadPitchesFromFile(std::vector<Pitch>& pitches, const std::string& filenam
     inFile.close();
 }
 
+// lưu dữ liệu vào file pitches.txt
 void savePitchesToFile(const std::vector<Pitch>& pitches, const std::string& filename) {
     std::ofstream outFile(filename);
     if (!outFile.is_open()) {
@@ -54,8 +56,11 @@ void savePitchesToFile(const std::vector<Pitch>& pitches, const std::string& fil
     outFile.close();
 }
 
-// ---------------- BOOKINGS ----------------
 
+//////////////////////////////// BOOKINGS //////////////////////////////////////////
+
+
+// load các lịch đặt sân từ file bookings.txt khi dự án bắt đầu được build
 void loadBookingsFromFile(std::vector<Booking>& bookings, const std::string& filename) {
     bookings.clear();
 
@@ -119,6 +124,7 @@ void loadBookingsFromFile(std::vector<Booking>& bookings, const std::string& fil
     Booking::setNextId(maxId + 1);
 }
 
+// lưu dữ liệu vào file bookings.txt
 void saveBookingsToFile(const std::vector<Booking>& bookings, const std::string& filename) {
     std::ofstream outFile(filename);
     if (!outFile.is_open()) {
@@ -141,4 +147,62 @@ void saveBookingsToFile(const std::vector<Booking>& bookings, const std::string&
     }
 
     outFile.close();
+}
+
+//////////////////////////////// Users //////////////////////////////////////////
+
+void loadUsersFromFile(std::vector<std::shared_ptr<User>>& users, const std::string& filename)
+{
+    std::ifstream inFile(filename);
+    if (!inFile.is_open()) return;
+
+    std::string line;
+    while (std::getline(inFile, line))
+    {
+        if (line.empty()) continue;
+
+        std::stringstream ss(line);
+        std::string username, password;
+
+        if (!std::getline(ss, username, ';')) continue;
+        if (!std::getline(ss, password)) continue; // ✅ lấy hết phần còn lại tới cuối dòng
+
+        // tránh trùng username
+        bool exists = false;
+        for (const auto& u : users)
+        {
+            if (u && u->getUsername() == username)
+            {
+                exists = true;
+                break;
+            }
+        }
+        if (exists) continue;
+
+        // ✅ tạo Customer
+        users.push_back(std::make_shared<Customer>(username, password));
+    }
+}
+
+void saveUsersToFile(const std::vector<std::shared_ptr<User>>& users, const std::string& filename)
+{
+    std::ofstream outFile(filename, std::ios::trunc);
+    if (!outFile.is_open())
+    {
+        std::cout << "Khong mo duoc file de ghi: " << filename << "\n";
+        return;
+    }
+
+    for (const auto& u : users)
+    {
+        if (!u) continue;
+
+        // chỉ lưu Customer (admin tạo mặc định)
+        if (u->getRole() == Role::Customer)
+        {
+            outFile << u->getUsername() << ";"
+                    << u->getPassword()
+                    << "\n";
+        }
+    }
 }
