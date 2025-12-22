@@ -7,20 +7,42 @@
 #include <sstream>
 
 // helper đọc choice an toàn
-static int readChoice()
+static int readChoiceInBox(TerminalUI& ui,
+                           int inputRow, int inputCol,
+                           int msgRow, int msgCol,
+                           int minChoice, int maxChoice)
 {
-    int choice;
     while (true)
     {
-        if (std::cin >> choice)
-        {
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // tránh dính newline
-            return choice;
+        // xóa vùng nhập (để khỏi dính chữ cũ)
+        ui.printAt(inputRow, inputCol, "        ");
+        ui.moveCursor(inputRow, inputCol);
+
+        std::string s;
+        std::getline(std::cin >> std::ws, s);
+
+        // kiểm tra có phải toàn số không
+        bool isNum = !s.empty();
+        for (char ch : s) {
+            if (ch < '0' || ch > '9') { isNum = false; break; }
         }
-        // nhập sai (ký tự), reset
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cout << "Nhap sai. Vui long nhap so!\nChon: ";
+
+        if (!isNum)
+        {
+            ui.printAt(msgRow, msgCol, "Nhap sai! Vui long nhap so.");
+            continue;
+        }
+
+        int choice = std::stoi(s);
+        if (choice < minChoice || choice > maxChoice)
+        {
+            ui.printAt(msgRow, msgCol, "Lua chon khong hop le! Vui long thu lai.");
+            continue;
+        }
+
+        // hợp lệ => xóa dòng thông báo lỗi (nếu có)
+        ui.printAt(msgRow, msgCol, "                                        ");
+        return choice;
     }
 }
 
@@ -44,7 +66,13 @@ int MenuView::showMainMenu() const
     ui.printAt(top + 7, left + 3, "Chon: ");
 
     ui.moveCursor(top + 7, left + 9);
-    return readChoice();
+    ui.moveCursor(top + 7, left + 9);
+
+// báo lỗi ngay trong khung (dòng dưới "Chon:")
+return readChoiceInBox(ui,
+                       top + 7, left + 9,      // input
+                       top + 8, left + 3,      // message in box
+                       0, 2);                  // chỉ cho 0..2
 }
 
 int MenuView::showAdminMenu() const
@@ -72,7 +100,13 @@ int MenuView::showAdminMenu() const
     ui.printAt(top + 12, left + 3, "Chon: ");
 
     ui.moveCursor(top + 12, left + 9);
-    return readChoice();
+    ui.moveCursor(top + 12, left + 9);
+
+// admin menu cho 0..7
+return readChoiceInBox(ui,
+                       top + 12, left + 9,
+                       top + 13, left + 3,
+                       0, 7);
 }
 
 int MenuView::showCustomerMenu() const
@@ -96,7 +130,13 @@ int MenuView::showCustomerMenu() const
     ui.printAt(top + 8, left + 3, "Chon: ");
 
     ui.moveCursor(top + 8, left + 9);
-    return readChoice();
+    ui.moveCursor(top + 8, left + 9);
+
+// customer menu cho 0..3
+return readChoiceInBox(ui,
+                       top + 8, left + 9,
+                       top + 9, left + 3,
+                       0, 3);
 }
 
 // GIAO DIỆN
@@ -182,10 +222,19 @@ std::pair<std::string, std::string> MenuView::showRegisterForm()
 }
 
 
-void MenuView::pause() const {
-    // chỉ chờ Enter, không in thêm thông báo
-    if (std::cin.peek() == '\n') std::cin.get();
-    std::cin.get();
+void MenuView::pause() const
+{
+    std::cin.clear();
+
+    // Nếu trong buffer đang có sẵn ký tự (thường là '\n' dư), thì bỏ nó đi trước
+    if (std::cin.rdbuf()->in_avail() > 0)
+    {
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
+
+    // Bây giờ mới chờ người dùng nhấn ENTER đúng 1 lần
+    std::string dummy;
+    std::getline(std::cin, dummy);
 }
 
 void MenuView::showPitchesScreen(const std::vector<Pitch>& pitches) const {
