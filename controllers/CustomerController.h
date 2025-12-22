@@ -19,6 +19,8 @@ public:
     void bookPitch(const std::vector<Pitch>& pitches,
                    std::vector<Booking>& bookings,
                    const std::string& username);
+
+
 };
 
 #endif // CUSTOMER_CONTROLLER_H

@@ -1,7 +1,6 @@
 #include <iostream>
 #include <vector>
 #include <memory>
-
 #include "models/Pitch.h"
 #include "models/User.h"
 #include "models/Booking.h"
@@ -10,9 +9,7 @@
 #include "controllers/CustomerController.h"
 #include "views/MenuView.h"
 #include "storage/DataStorage.h"
-
 #include "views/TerminalUI.h"
-
 int main()
 {
     std::vector<Pitch> pitches;
@@ -41,48 +38,68 @@ int main()
             int choice = view.showMainMenu();
             if (choice == 1)
             {
-                auto [username, password] = view.showLoginForm(); // ✅ UI đẹp trong khung
+                while (true)
+                {
+                    auto [username, password] = view.showLoginForm();
+
+                    if (username == "0")
+                        break; // quay lại menu chính
+
+                    std::shared_ptr<User> outUser = nullptr;
+                    LoginStatus st = authController.loginDetailed(username, password, outUser);
+
+                    if (st == LoginStatus::Success)
+                    {
+                        currentUser = outUser;
+                        view.showMessageBox("DANG NHAP", {"Dang nhap thanh cong!"});
+                        view.pause();
+                        break; // vào menu theo role
+                    }
+                    else if (st == LoginStatus::WrongPassword)
+                    {
+                        view.showMessageBox("DANG NHAP", {"Tai Khoan Khong Ton Tai Hoac Sai Mat Khau. Vui Long Thu Lai."});
+                        view.pause(); // ✅ phải có, nếu không sẽ bị vẽ lại form ngay => bạn tưởng không hiện
+                        continue;     // quay lại form đăng nhập
+                    }
+                    else // UserNotFound
+                    {
+                        view.showMessageBox("DANG NHAP", {"Tai Khoan Khong Ton Tai Hoac Sai Mat Khau. Vui Long Thu Lai."});
+                        view.pause(); // ✅ phải có
+                        continue;
+                    }
+                }
+            }
+            else if (choice == 2)
+            {
+                auto [username, password] = view.showRegisterForm(); // ✅ UI khung
 
                 if (username == "0")
                 {
                     continue; // quay lại menu chính
                 }
 
-                auto user = authController.login(username, password);
-                if (user)
-                {
-                    currentUser = user;
-                    std::cout << "Dang nhap thanh cong! Xin chao, " << username << "\n";
-                }
-                else
-                {
-                    std::cout << "Sai thong tin dang nhap.\n";
-                }
-            }
-            else if (choice == 2)
-            {
-                std::string username, password;
-                std::cout << "Nhap username: ";
-                std::cin >> username;
-                std::cout << "Nhap password: ";
-                std::cin >> password;
-
                 if (authController.registerCustomer(username, password))
                 {
-                    std::cout << "Dang ky thanh cong! Ban co the dang nhap.\n";
+                    authController.saveCustomersToFile(USERS_FILE);
+                    view.showMessageBox("DANG KY", {"Dang ky thanh cong! Ban co the dang nhap."});
                 }
                 else
                 {
-                    std::cout << "Username da ton tai.\n";
+                    view.showMessageBox("DANG KY", {"Ten nguoi dung da ton tai."});
                 }
+                view.pause();
             }
             else if (choice == 0)
             {
+                TerminalUI ui;
+                ui.clear();
                 running = false;
+                break;
             }
             else
             {
-                std::cout << "Lua chon khong hop le.\n";
+                view.showMessageBox("THONG BAO", {"Lua chon khong hop le."});
+                view.pause();
             }
         }
         else
@@ -199,7 +216,6 @@ int main()
                     view.pause();
                     break;
                 }
-
                 case 0:
                     std::cout << "Dang xuat...\n";
                     currentUser.reset();
@@ -242,6 +258,9 @@ int main()
     // 🌟 Trước khi thoát, lưu lại dữ liệu user
     authController.saveCustomersToFile(USERS_FILE);
 
-    std::cout << "Tam biet!\n";
+    TerminalUI ui;
+    ui.clear();
+    ui.moveCursor(1, 1); // ✅ tránh in lệch vị trí
+    std::cout << "Tam bietttttt!\n";
     return 0;
 }

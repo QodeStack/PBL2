@@ -339,12 +339,10 @@ bool AdminController::checkoutPitch(std::vector<Pitch>& pitches,
         amount = hours * pitchPtr->getPrice();
         target->setEndTime(end);
     }
-
     // 4) update (y hệt code cũ)
     target->setTotalAmount(amount);
     target->setStatus(BookingStatus::Finished);
     pitchPtr->setBooked(false);
-
     // 5) bill (nhiều dòng)
     std::ostringstream oss;
     oss << "=== HOA DON DON GIAN ===\n";

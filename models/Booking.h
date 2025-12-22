@@ -5,7 +5,8 @@
 
 enum class BookingStatus {
     Active,    // Đang chơi / chưa tính tiền
-    Finished   // Đã tí nh tiền xong
+    Finished  // Đã tí nh tiền xong
+    
 };
 class Booking {
 private:

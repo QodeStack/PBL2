@@ -29,6 +29,7 @@ public:
     int showCustomerMenu() const;
 
     std::pair<std::string, std::string> showLoginForm() const;
+    std::pair<std::string, std::string> showRegisterForm();
     void pause() const;
 
      // ✅ THÊM HÀM NÀY

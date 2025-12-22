@@ -2,7 +2,7 @@
 #include <iostream>
 #include <algorithm>
 #include <limits> // NEW
-
+#include <cstdlib> // dùng cho hàm clear
 #ifdef _WIN32
 #include <windows.h>
 #else
@@ -48,8 +48,11 @@ TermSize TerminalUI::getSize() const
 
 void TerminalUI::clear() const
 {
-    // clear + home
-    std::cout << "\x1b[2J\x1b[H";
+#ifdef _WIN32
+    std::system("cls");                 // ✅ Windows CMD/VSCode terminal: clear chắc chắn
+#else
+    std::cout << "\x1b[2J\x1b[H";       // ✅ Linux/mac: ANSI ok
+#endif
     std::cout.flush();
 }
 

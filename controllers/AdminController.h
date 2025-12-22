@@ -1,7 +1,7 @@
 #ifndef ADMIN_CONTROLLER_H
 #define ADMIN_CONTROLLER_H
 
-#include <vector>
+#include <vector> 
 #include "../models/Pitch.h"
 #include "../models/Booking.h"
 
@@ -23,8 +23,6 @@ public:
                       int pitchId,
                       const std::string& customerNameInput,
                       std::string& outMsg);
-
-
 
     bool getCheckoutCandidates(const std::vector<Pitch>& pitches,
                            const std::vector<Booking>& bookings,

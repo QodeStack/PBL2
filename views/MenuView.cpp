@@ -114,14 +114,14 @@ std::pair<std::string, std::string> MenuView::showLoginForm() const
     ui.drawBox(top, left, boxH, boxW);
 
     ui.printCentered(top + 1, "DANG NHAP");
-    ui.printAt(top + 3, left + 3, "Username : ");
-    ui.printAt(top + 5, left + 3, "Password : ");
+    ui.printAt(top + 3, left + 3, "Ten Nguoi Dung: ");
+    ui.printAt(top + 5, left + 3, "Mat Khau : ");
     ui.printAt(top + 8, left + 3, "Nhap 0 o Username de quay lai");
 
     std::string username, password;
 
     // ✅ Đưa con trỏ vào ô nhập Username
-    ui.moveCursor(top + 3, left + 14);
+    ui.moveCursor(top + 3, left + 19);
     std::getline(std::cin >> std::ws, username);
 
     if (username == "0")
@@ -133,6 +133,55 @@ std::pair<std::string, std::string> MenuView::showLoginForm() const
 
     return {username, password};
 }
+
+std::pair<std::string, std::string> MenuView::showRegisterForm()
+{
+    TerminalUI ui;
+    TermSize ts = ui.getSize();
+
+    int boxWidth  = std::min(110, ts.cols - 4);
+    int boxHeight = std::min(22,  ts.rows - 4);
+    if (boxWidth < 70)  boxWidth  = std::min(ts.cols - 2, 70);
+    if (boxHeight < 14) boxHeight = std::min(ts.rows - 2, 14);
+
+    int top  = ui.centerTop(boxHeight);
+    int left = ui.centerLeft(boxWidth);
+
+    int innerLeft = left + 1;
+    int innerW    = boxWidth - 2;
+
+    ui.clear();
+    ui.drawBox(top, left, boxHeight, boxWidth);
+
+    std::string title = "DANG KY";
+    int titleCol = innerLeft + std::max(0, (innerW - (int)title.size()) / 2);
+    ui.printAt(top + 1, titleCol, title);
+    ui.drawHLine(top + 2, left, boxWidth, '-');
+
+    // Labels
+    std::string lblUser = "Ten nguoi dung: ";
+    std::string lblPass = "Mat khau     : ";
+
+    ui.printAt(top + 4, innerLeft + 2, lblUser);
+    ui.printAt(top + 6, innerLeft + 2, lblPass);
+
+    ui.printAt(top + boxHeight - 3, innerLeft + 2, "Nhap 0 o Username de quay lai");
+
+    // Input (nhap ngay sau label)
+    std::string username, password;
+
+    ui.moveCursor(top + 4, innerLeft + 2 + (int)lblUser.size());
+    std::getline(std::cin >> std::ws, username);
+
+    if (username == "0") return {"0", ""};
+
+    ui.moveCursor(top + 6, innerLeft + 2 + (int)lblPass.size());
+    std::getline(std::cin >> std::ws, password);
+
+    return {username, password};
+}
+
+
 void MenuView::pause() const {
     // chỉ chờ Enter, không in thêm thông báo
     if (std::cin.peek() == '\n') std::cin.get();

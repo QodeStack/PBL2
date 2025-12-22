@@ -6,12 +6,22 @@
 #include <string>
 #include "../models/User.h"
 
+
+enum class LoginStatus {
+    Success,
+    UserNotFound,
+    WrongPassword
+};
 class AuthController {
 private:
     std::vector<std::shared_ptr<User>> users;
 
 public:
     AuthController();
+
+    LoginStatus loginDetailed(const std::string& username,
+                          const std::string& password,
+                          std::shared_ptr<User>& outUser);
 
     std::shared_ptr<User> login(const std::string& username, const std::string& password);
     bool registerCustomer(const std::string& username, const std::string& password);
