@@ -1,11 +1,112 @@
 #include "CustomerController.h"
 #include <iostream>
 #include <limits>  // để dùng std::numeric_limits
+#include <algorithm>
 #include "../views/TerminalUI.h"
 
-void CustomerController::viewAllPitches(const std::vector<Pitch>& pitches) const {
+void CustomerController::viewAllPitches(const std::vector<Pitch>& pitches) const
+{
     TerminalUI ui;
-    ui.showCustomerAllPitches(pitches);
+    ui.init();     // ✅ nên bật ANSI (moveCursor dùng ANSI)
+    ui.clear();
+
+    TermSize ts = ui.getSize();
+
+    // Box size an toàn (tránh tràn màn hình)
+    int boxWidth  = std::min(110, ts.cols - 4);
+    int boxHeight = std::min(28,  ts.rows - 4);
+
+    if (boxWidth < 60)  boxWidth  = std::min(ts.cols - 2, 60);
+    if (boxHeight < 10) boxHeight = std::min(ts.rows - 2, 10);
+
+    int top  = ui.centerTop(boxHeight);
+    int left = ui.centerLeft(boxWidth);
+
+    ui.drawBox(top, left, boxHeight, boxWidth);
+
+    // vùng in bên trong box
+    int innerLeft = left + 1;
+    int innerW    = boxWidth - 2;
+
+    // Title
+    std::string title = "TAT CA SAN";
+    int titleCol = innerLeft + std::max(0, (innerW - (int)title.size()) / 2);
+    ui.printAt(top + 1, titleCol, title);
+
+    // separator
+    ui.drawHLine(top + 2, left, boxWidth, '-');
+
+    if (pitches.empty())
+    {
+        std::string msg = "Chua co san nao.";
+        int msgCol = innerLeft + std::max(0, (innerW - (int)msg.size()) / 2);
+        ui.printAt(top + 4, msgCol, msg);
+
+        std::string hint = "Nhan ENTER de quay lai...";
+        ui.printAt(top + boxHeight - 2, innerLeft + 2, ui.fitText(hint, innerW - 4));
+        return; // main sẽ view.pause()
+    }
+
+    int colStart = innerLeft + 1;
+    int usableW  = innerW - 2;
+
+    const int sepTotal = 3 * 3; // " | " * 3
+    int contentW = usableW - sepTotal;
+    if (contentW < 20) contentW = 20;
+
+    int base = contentW / 4;
+    int rem  = contentW % 4;
+
+    int wId    = base + (rem > 0 ? 1 : 0);
+    int wName  = base + (rem > 1 ? 1 : 0);
+    int wPrice = base + (rem > 2 ? 1 : 0);
+    int wSize  = base;
+
+    auto pad = [](const std::string& s, int w) {
+        if ((int)s.size() >= w) return s.substr(0, w);
+        return s + std::string(w - (int)s.size(), ' ');
+    };
+
+    auto printRow = [&](int r,
+                        const std::string& id,
+                        const std::string& name,
+                        const std::string& price,
+                        const std::string& size)
+    {
+        std::string sId    = pad(ui.fitText(id,    wId),    wId);
+        std::string sName  = pad(ui.fitText(name,  wName),  wName);
+        std::string sPrice = pad(ui.fitText(price, wPrice), wPrice);
+        std::string sSize  = pad(ui.fitText(size,  wSize),  wSize);
+
+        std::string line = sId + " | " + sName + " | " + sPrice + " | " + sSize;
+        if ((int)line.size() > usableW) line = line.substr(0, usableW);
+
+        ui.printAt(r, colStart, line);
+    };
+
+    int row = top + 3;
+    printRow(row, "ID", "Ten san", "Gia", "Loai");
+    row++;
+
+    ui.drawHLine(row, left, boxWidth, '-');
+    row++;
+
+    int maxRows = top + boxHeight - 2;
+    for (const auto& p : pitches)
+    {
+        if (row > maxRows) break;
+
+        printRow(row,
+                 std::to_string(p.getId()),
+                 p.getName(),
+                 std::to_string((long long)p.getPrice()),
+                 std::to_string(p.getSize()) + " nguoi");
+        row++;
+    }
+
+    std::string hint = "Nhan ENTER de quay lai...";
+    ui.printAt(top + boxHeight - 2, innerLeft + 2, ui.fitText(hint, innerW - 4));
+    // Không pause ở đây -> main đã gọi view.pause()
 }
 
 

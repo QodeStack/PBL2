@@ -1,8 +1,6 @@
 #pragma once
 #include <string>
-#include <vector>              // NEW
-#include "../models/Pitch.h"   // NEW
-#include "../models/Booking.h"
+#include <vector>              
 
 struct TermSize {
     int rows;
@@ -17,8 +15,7 @@ public:
     TermSize getSize() const;
 
     void clear() const;
-    void moveCursor(int row, int col) const; // 1-based
-    void hideCursor(bool hide) const;
+    void moveCursor(int row, int col) const; 
 
     // vẽ khung
     void drawBox(int top, int left, int height, int width) const;
@@ -31,13 +28,7 @@ public:
     int centerTop(int boxHeight) const;
     int centerLeft(int boxWidth) const;
 
-    
-    // =========================
-    // NEW: tiện ích + view customer
-    // =========================
     std::string fitText(const std::string& s, int width) const;   // cắt chữ tránh tràn
     void drawHLine(int row, int left, int width, char ch = '-') const; // kẻ ngang trong box
 
-    // NEW: màn hình xem tất cả sân (Customer)
-    void showCustomerAllPitches(const std::vector<Pitch>& pitches) const;
 };

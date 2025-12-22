@@ -139,7 +139,6 @@ return readChoiceInBox(ui,
                        0, 3);
 }
 
-// GIAO DIỆN
 std::pair<std::string, std::string> MenuView::showLoginForm() const
 {
     TerminalUI ui;
@@ -221,10 +220,10 @@ std::pair<std::string, std::string> MenuView::showRegisterForm()
     return {username, password};
 }
 
-
+//Hàm Này dùng để dừng lại màn hình để người dùng xem , và chuyển sang giao diện tiếp theo khi ENTER
 void MenuView::pause() const
 {
-    std::cin.clear();
+    std::cin.clear(); 
 
     // Nếu trong buffer đang có sẵn ký tự (thường là '\n' dư), thì bỏ nó đi trước
     if (std::cin.rdbuf()->in_avail() > 0)
@@ -236,6 +235,7 @@ void MenuView::pause() const
     std::string dummy;
     std::getline(std::cin, dummy);
 }
+
 
 void MenuView::showPitchesScreen(const std::vector<Pitch>& pitches) const {
     TerminalUI ui;
@@ -280,7 +280,6 @@ void MenuView::showPitchesScreen(const std::vector<Pitch>& pitches) const {
     // ====== ĐỘ RỘNG CỘT (4 cột bằng nhau + xử lý phần dư) ======
     int base = (contentW - gapsW) / 4;
     int rem  = (contentW - gapsW) % 4;
-
     int idW    = base + (rem > 0 ? 1 : 0);
     int nameW  = base + (rem > 1 ? 1 : 0);
     int priceW = base + (rem > 2 ? 1 : 0);
