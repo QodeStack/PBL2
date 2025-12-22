@@ -4,7 +4,6 @@
 #include <iostream>
 
 //////////////////////////////// Pitches //////////////////////////////////////////
-
 // load các sân đã được tạo từ file pitches.txt khi dự án bắt đầu được build 
 void loadPitchesFromFile(std::vector<Pitch>& pitches, const std::string& filename) {
     pitches.clear();
@@ -57,9 +56,9 @@ void savePitchesToFile(const std::vector<Pitch>& pitches, const std::string& fil
 }
 
 
+
+
 //////////////////////////////// BOOKINGS //////////////////////////////////////////
-
-
 // load các lịch đặt sân từ file bookings.txt khi dự án bắt đầu được build
 void loadBookingsFromFile(std::vector<Booking>& bookings, const std::string& filename) {
     bookings.clear();
@@ -149,8 +148,11 @@ void saveBookingsToFile(const std::vector<Booking>& bookings, const std::string&
     outFile.close();
 }
 
-//////////////////////////////// Users //////////////////////////////////////////
 
+
+
+
+//////////////////////////////// Users //////////////////////////////////////////
 void loadUsersFromFile(std::vector<std::shared_ptr<User>>& users, const std::string& filename)
 {
     std::ifstream inFile(filename);

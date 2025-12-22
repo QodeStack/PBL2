@@ -1,53 +1,31 @@
 #include "Pitch.h"
 
 Pitch::Pitch(int id, const std::string& name, double price, int size)
-    : id(id), name(name), isBooked(false), bookedBy(""),price(price),size(size),bookedTime("") {}
+    : id(id), name(name),price(price),size(size) {}
 
+
+// 4 hàm xử lí lấy dữ liệu cho chức năng xem danh sách sân
 int Pitch::getId() const {
     return id;
 }
-
 std::string Pitch::getName() const {
     return name;
 }
-
-bool Pitch::getIsBooked() const {
-    return isBooked;
-}
-
-std::string Pitch::getBookedBy() const {
-    return bookedBy;
-}
-
-double Pitch::getPrice() const {  // ← phải có const giống trong .h
+double Pitch::getPrice() const { 
     return price;
 }
-int Pitch::getSize() const {      // ← phải có const giống trong .h
+int Pitch::getSize() const {      
     return size;
 }
-std::string Pitch::getBookedTime() const {   // 🌟 implement getter
-    return bookedTime;
-}
 
+
+// 3 hàm xử lí thay đổi dữ liệu cho chức năng cập nhật 
 void Pitch::setName(const std::string& newName) {
     name = newName;
 }
-
-void Pitch::setBooked(bool booked) {
-    isBooked = booked;
-}
-
-void Pitch::setBookedBy(const std::string& username) {
-    bookedBy = username;
-}
-
 void Pitch::setPrice(double newPrice) {
     price = newPrice;
 }
-
 void Pitch::setSize(int newSize) {
     size = newSize;
-}
-void Pitch::setBookedTime(const std::string& time) {  // 🌟 implement setter
-    bookedTime = time;
 }

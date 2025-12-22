@@ -1,38 +1,17 @@
 #include "Booking.h"
 
 int Booking::nextId = 1;
-Booking::Booking(int id,
-                 int pitchId,
-                 const std::string& username,
-                 const std::string& timeSlot,
-                 const std::string& startTime,
-                 const std::string& endTime,
-                 BookingStatus status,
-                 double totalAmount)
-    : id(id),
-      pitchId(pitchId),
-      customerUsername(username),
-      timeSlot(timeSlot),
-      startTime(startTime),
-      endTime(endTime),
-      status(status),
-      totalAmount(totalAmount){}
+// Dữ liệu booking được load lên từ file txt
+Booking::Booking(int id, int pitchId, const std::string& username, const std::string& timeSlot, const std::string& startTime,
+                 const std::string& endTime, BookingStatus status, double totalAmount)
+    : id(id), pitchId(pitchId), customerUsername(username), timeSlot(timeSlot), startTime(startTime),
+      endTime(endTime), status(status), totalAmount(totalAmount){}
 
-Booking::Booking(int pitchId,
-                 const std::string& username,
-                 const std::string& timeSlot,
-                 const std::string& startTime,
-                 const std::string& endTime,
-                 BookingStatus status,
-                 double totalAmount)
-    : id(nextId++),
-      pitchId(pitchId),
-      customerUsername(username),
-      timeSlot(timeSlot),
-      startTime(startTime),
-      endTime(endTime),
-      status(status),
-      totalAmount(totalAmount){}
+// Dữ liệu booking được tạo khi customer đặt sân hoặc admin đặt sân tại quầy 
+Booking::Booking(int pitchId,const std::string& username,const std::string& timeSlot,const std::string& startTime,
+                 const std::string& endTime,BookingStatus status,double totalAmount)
+    : id(nextId++),pitchId(pitchId),customerUsername(username),timeSlot(timeSlot), startTime(startTime),
+      endTime(endTime),status(status),totalAmount(totalAmount){}
 
 
 int Booking::getId() const {
@@ -50,7 +29,7 @@ std::string Booking::getCustomerUsername() const {
 std::string Booking::getTimeSlot() const {
     return timeSlot;
 }
-/////// Mới ///////
+
 std::string Booking::getStartTime() const {
     return startTime;
 }
@@ -82,10 +61,7 @@ void Booking::setStatus(BookingStatus st) {
 void Booking::setTotalAmount(double amount) {
     totalAmount = amount;
 }
-///// Mới ////
 
-
-// set nextId
 void Booking::setNextId(int value) {
     nextId = value;
 }

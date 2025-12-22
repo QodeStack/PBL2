@@ -3,9 +3,9 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 #include "../models/Pitch.h"
 #include "../models/Booking.h"
-#include <memory>
 #include "../models/User.h"
 
 // Pitches
