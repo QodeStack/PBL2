@@ -19,9 +19,7 @@ private:
 public:
     AuthController();
 
-    LoginStatus loginDetailed(const std::string& username,
-                          const std::string& password,
-                          std::shared_ptr<User>& outUser);
+    LoginStatus loginDetailed(const std::string& username,const std::string& password, std::shared_ptr<User>& outUser);
 
     std::shared_ptr<User> login(const std::string& username, const std::string& password);
     bool registerCustomer(const std::string& username, const std::string& password);

@@ -2,12 +2,16 @@
 #include <iostream>
 #include <limits>
 #include "TerminalUI.h"
-
 #include <iomanip>
 #include <sstream>
+#include "../helpers/MenuHelper.h"
+#include "../helpers/Table4ColsHelper.h"
+
+// Hàm Này dùng để dừng lại màn hình để người dùng xem , và chuyển sang giao diện tiếp theo khi ENTER
+void MenuView::pause() const{ MenuHelper::pause(); }
 
 // đọc choice an toàn
-static int readChoiceInBox(TerminalUI& ui,int inputRow, int inputCol,int msgRow, int msgCol,int minChoice, int maxChoice)
+static int readChoiceInBox(TerminalUI &ui, int inputRow, int inputCol, int msgRow, int msgCol, int minChoice, int maxChoice)
 {
     while (true)
     {
@@ -20,8 +24,13 @@ static int readChoiceInBox(TerminalUI& ui,int inputRow, int inputCol,int msgRow,
 
         // kiểm tra có phải toàn số không
         bool isNum = !s.empty();
-        for (char ch : s) {
-            if (ch < '0' || ch > '9') { isNum = false; break; }
+        for (char ch : s)
+        {
+            if (ch < '0' || ch > '9')
+            {
+                isNum = false;
+                break;
+            }
         }
 
         if (!isNum)
@@ -56,7 +65,7 @@ int MenuView::showMainMenu() const
 
     ui.drawBox(top, left, boxH, boxW);
 
-    ui.printCenteredInBoxColor(top + 1, left, boxW,Color::Yellow, "HE THONG QUAN LY SAN BONG");
+    ui.printCenteredInBoxColor(top + 1, left, boxW, Color::Yellow, "HE THONG QUAN LY SAN BONG");
     ui.printAt(top + 3, left + 3, "1. Dang nhap");
     ui.printAt(top + 4, left + 3, "2. Dang ky (khach hang)");
     ui.printAt(top + 5, left + 3, "0. Thoat");
@@ -65,11 +74,8 @@ int MenuView::showMainMenu() const
     ui.moveCursor(top + 7, left + 9);
     ui.moveCursor(top + 7, left + 9);
 
-// báo lỗi ngay trong khung (dòng dưới "Chon:")
-return readChoiceInBox(ui,
-                       top + 7, left + 9,      // input
-                       top + 8, left + 3,      // message in box
-                       0, 2);                  // chỉ cho 0..2
+    // báo lỗi ngay trong khung (dòng dưới "Chon:")
+    return readChoiceInBox(ui,top + 7, left + 9,top + 8, left + 3,0, 2);            
 }
 
 int MenuView::showAdminMenu() const
@@ -85,7 +91,7 @@ int MenuView::showAdminMenu() const
 
     ui.drawBox(top, left, boxH, boxW);
 
-    ui.printCenteredInBoxColor(top + 1, left, boxW,Color::Yellow, "MENU ADMIN");
+    ui.printCenteredInBoxColor(top + 1, left, boxW, Color::Yellow, "MENU ADMIN");
     ui.printAt(top + 3, left + 3, "1. Xem danh sach san");
     ui.printAt(top + 4, left + 3, "2. Them san (Create)");
     ui.printAt(top + 5, left + 3, "3. Sua san (Update)");
@@ -97,11 +103,11 @@ int MenuView::showAdminMenu() const
     ui.printAt(top + 12, left + 3, "Chon: ");
 
     ui.moveCursor(top + 12, left + 9);
-// admin menu cho 0..7
-return readChoiceInBox(ui,
-                       top + 12, left + 9,
-                       top + 13, left + 3,
-                       0, 7);
+    // admin menu cho 0..7
+    return readChoiceInBox(ui,
+                           top + 12, left + 9,
+                           top + 13, left + 3,
+                           0, 7);
 }
 
 int MenuView::showCustomerMenu() const
@@ -117,7 +123,7 @@ int MenuView::showCustomerMenu() const
 
     ui.drawBox(top, left, boxH, boxW);
 
-    ui.printCenteredInBoxColor(top + 1,left,boxW,Color::Yellow,"MENU KHACH HANG");
+    ui.printCenteredInBoxColor(top + 1, left, boxW, Color::Yellow, "MENU KHACH HANG");
     ui.printAt(top + 3, left + 3, "1. Xem tat ca san");
     ui.printAt(top + 4, left + 3, "2. Xem san trong");
     ui.printAt(top + 5, left + 3, "3. Dat san");
@@ -127,11 +133,11 @@ int MenuView::showCustomerMenu() const
     ui.moveCursor(top + 8, left + 9);
     ui.moveCursor(top + 8, left + 9);
 
-// customer menu cho 0..3
-return readChoiceInBox(ui,
-                       top + 8, left + 9,
-                       top + 9, left + 3,
-                       0, 3);
+    // customer menu cho 0..3
+    return readChoiceInBox(ui,
+                           top + 8, left + 9,
+                           top + 9, left + 3,
+                           0, 3);
 }
 
 std::pair<std::string, std::string> MenuView::showLoginForm() const
@@ -147,10 +153,10 @@ std::pair<std::string, std::string> MenuView::showLoginForm() const
 
     ui.drawBox(top, left, boxH, boxW);
 
-    ui.printCenteredInBoxColor(top + 1, left, boxW,Color::Yellow, "DANG NHAP");
-    ui.printAtColor(top + 3, left + 3,Color::Cyan ,"Ten nguoi dung: ");
-    ui.printAtColor(top + 5, left + 3,Color::Cyan,"mat khau : ");
-    ui.printAt(top + 8, left + 3,"Nhap 0+Enter vao Ten nguoi dung de quay lai");
+    ui.printCenteredInBoxColor(top + 1, left, boxW, Color::Yellow, "DANG NHAP");
+    ui.printAtColor(top + 3, left + 3, Color::Cyan, "Ten nguoi dung: ");
+    ui.printAtColor(top + 5, left + 3, Color::Cyan, "mat khau : ");
+    ui.printAt(top + 8, left + 3, "Nhap 0+Enter vao Ten nguoi dung de quay lai");
 
     std::string username, password;
 
@@ -173,16 +179,18 @@ std::pair<std::string, std::string> MenuView::showRegisterForm()
     TerminalUI ui;
     TermSize ts = ui.getSize();
 
-    int boxWidth  = std::min(110, ts.cols - 4);
-    int boxHeight = std::min(22,  ts.rows - 4);
-    if (boxWidth < 70)  boxWidth  = std::min(ts.cols - 2, 70);
-    if (boxHeight < 14) boxHeight = std::min(ts.rows - 2, 14);
+    int boxWidth = std::min(110, ts.cols - 4);
+    int boxHeight = std::min(22, ts.rows - 4);
+    if (boxWidth < 70)
+        boxWidth = std::min(ts.cols - 2, 70);
+    if (boxHeight < 14)
+        boxHeight = std::min(ts.rows - 2, 14);
 
-    int top  = ui.centerTop(boxHeight);
+    int top = ui.centerTop(boxHeight);
     int left = ui.centerLeft(boxWidth);
 
     int innerLeft = left + 1;
-    int innerW    = boxWidth - 2;
+    int innerW = boxWidth - 2;
 
     ui.clear();
     ui.drawBox(top, left, boxHeight, boxWidth);
@@ -197,8 +205,8 @@ std::pair<std::string, std::string> MenuView::showRegisterForm()
     std::string lblUser = "Ten nguoi dung: ";
     std::string lblPass = "Mat khau     : ";
 
-    ui.printAtColor(top + 4, innerLeft + 2,Color::Cyan ,lblUser);
-    ui.printAtColor(top + 6, innerLeft + 2,Color::Cyan, lblPass);
+    ui.printAtColor(top + 4, innerLeft + 2, Color::Cyan, lblUser);
+    ui.printAtColor(top + 6, innerLeft + 2, Color::Cyan, lblPass);
 
     ui.printAt(top + boxHeight - 3, innerLeft + 2, "Nhap 0+Enter vao Ten nguoi dung de quay lai");
 
@@ -208,7 +216,8 @@ std::pair<std::string, std::string> MenuView::showRegisterForm()
     ui.moveCursor(top + 4, innerLeft + 2 + (int)lblUser.size());
     std::getline(std::cin >> std::ws, username);
 
-    if (username == "0") return {"0", ""};
+    if (username == "0")
+        return {"0", ""};
 
     ui.moveCursor(top + 6, innerLeft + 2 + (int)lblPass.size());
     std::getline(std::cin >> std::ws, password);
@@ -216,47 +225,33 @@ std::pair<std::string, std::string> MenuView::showRegisterForm()
     return {username, password};
 }
 
-//Hàm Này dùng để dừng lại màn hình để người dùng xem , và chuyển sang giao diện tiếp theo khi ENTER
-void MenuView::pause() const
+// Xem danh sách sân
+void MenuView::showPitchesScreen(const std::vector<Pitch> &pitches) const
 {
-    std::cin.clear(); 
-
-    // Nếu trong buffer đang có sẵn ký tự (thường là '\n' dư), thì bỏ nó đi trước
-    if (std::cin.rdbuf()->in_avail() > 0)
-    {
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    }
-
-    // Bây giờ mới chờ người dùng nhấn ENTER đúng 1 lần
-    std::string dummy;
-    std::getline(std::cin, dummy);
-}
-
-// Xem danh sách sân 
-void MenuView::showPitchesScreen(const std::vector<Pitch>& pitches) const {
     TerminalUI ui;
     ui.init();
     ui.clear();
 
     const int boxW = 110;
     const int boxH = 22;
-    int top  = ui.centerTop(boxH);
+    int top = ui.centerTop(boxH);
     int left = ui.centerLeft(boxW);
 
     ui.drawBox(top, left, boxH, boxW);
-    ui.printCenteredInBoxColor(top + 1,left,boxW,Color::Yellow, "DANH SACH SAN");
+    ui.printCenteredInBoxColor(top + 1, left, boxW, Color::Yellow, "DANH SACH SAN");
 
     // ====== CĂN LỀ + GAP ======
     const int marginL = 4;
     const int marginR = 4;
-    const int gap     = 6;
+    const int gap = 6;
 
-    const int innerW   = boxW - 2;
+    const int innerW = boxW - 2;
     const int contentW = innerW - marginL - marginR;
-    const int gapsW    = gap * 3;
+    const int gapsW = gap * 3;
 
     // In 1 dòng vào khung, có lề trái/phải
-    auto printRow = [&](int r, const std::string& rowText) {
+    auto printRow = [&](int r, const std::string &rowText)
+    {
         std::string line = std::string(marginL, ' ') + rowText;
 
         if ((int)line.size() < marginL + contentW)
@@ -264,8 +259,10 @@ void MenuView::showPitchesScreen(const std::vector<Pitch>& pitches) const {
 
         line += std::string(marginR, ' ');
 
-        if ((int)line.size() < innerW) line += std::string(innerW - line.size(), ' ');
-        if ((int)line.size() > innerW) line = line.substr(0, innerW);
+        if ((int)line.size() < innerW)
+            line += std::string(innerW - line.size(), ' ');
+        if ((int)line.size() > innerW)
+            line = line.substr(0, innerW);
 
         ui.printAt(r, left + 1, line);
     };
@@ -275,17 +272,21 @@ void MenuView::showPitchesScreen(const std::vector<Pitch>& pitches) const {
 
     // ====== ĐỘ RỘNG CỘT (4 cột bằng nhau + xử lý phần dư) ======
     int base = (contentW - gapsW) / 4;
-    int rem  = (contentW - gapsW) % 4;
-    int idW    = base + (rem > 0 ? 1 : 0);
-    int nameW  = base + (rem > 1 ? 1 : 0);
+    int rem = (contentW - gapsW) % 4;
+    int idW = base + (rem > 0 ? 1 : 0);
+    int nameW = base + (rem > 1 ? 1 : 0);
     int priceW = base + (rem > 2 ? 1 : 0);
-    int typeW  = base;
+    int typeW = base;
 
-    if (nameW < 15) nameW = 15;
+    if (nameW < 15)
+        nameW = 15;
 
-    auto cut = [](const std::string& s, int w) {
-        if ((int)s.size() <= w) return s;
-        if (w <= 3) return s.substr(0, w);
+    auto cut = [](const std::string &s, int w)
+    {
+        if ((int)s.size() <= w)
+            return s;
+        if (w <= 3)
+            return s.substr(0, w);
         return s.substr(0, w - 3) + "...";
     };
 
@@ -295,28 +296,33 @@ void MenuView::showPitchesScreen(const std::vector<Pitch>& pitches) const {
     {
         std::ostringstream oss;
         oss << std::left
-            << std::setw(idW)    << "ID"      << std::string(gap, ' ')
-            << std::setw(nameW)  << "TEN SAN" << std::string(gap, ' ')
-            << std::setw(priceW) << "GIA"     << std::string(gap, ' ')
-            << std::setw(typeW)  << "LOAI";
+            << std::setw(idW) << "ID" << std::string(gap, ' ')
+            << std::setw(nameW) << "TEN SAN" << std::string(gap, ' ')
+            << std::setw(priceW) << "GIA" << std::string(gap, ' ')
+            << std::setw(typeW) << "LOAI";
         printRow(row++, oss.str());
         printRow(row++, std::string(contentW, '-'));
     }
 
     // ====== BODY ======
-    if (pitches.empty()) {
+    if (pitches.empty())
+    {
         printRow(row++, "Chua co san nao.");
-    } else {
-        for (const auto& p : pitches) {
+    }
+    else
+    {
+        for (const auto &p : pitches)
+        {
             std::ostringstream oss;
             oss << std::left
-                << std::setw(idW)    << p.getId() << std::string(gap, ' ')
-                << std::setw(nameW)  << cut(p.getName(), nameW) << std::string(gap, ' ')
+                << std::setw(idW) << p.getId() << std::string(gap, ' ')
+                << std::setw(nameW) << cut(p.getName(), nameW) << std::string(gap, ' ')
                 << std::setw(priceW) << (long long)p.getPrice() << std::string(gap, ' ')
-                << std::setw(typeW)  << (std::to_string(p.getSize()) + " nguoi");
+                << std::setw(typeW) << (std::to_string(p.getSize()) + " nguoi");
 
             printRow(row++, oss.str());
-            if (row >= top + boxH - 3) break;
+            if (row >= top + boxH - 3)
+                break;
         }
     }
 
@@ -325,24 +331,25 @@ void MenuView::showPitchesScreen(const std::vector<Pitch>& pitches) const {
     ui.moveCursor(top + boxH - 2, left + 1 + marginL + (int)std::string("Nhan ENTER de quay lai...").size());
 }
 
-// Tạo sân : hiện thị ra giao diện để mình nhập dô  
-PitchFormInput MenuView::showCreatePitchForm() const {
+// Tạo sân : hiện thị ra giao diện để mình nhập dô
+PitchFormInput MenuView::showCreatePitchForm() const
+{
     TerminalUI ui;
     ui.init();
     ui.clear();
 
     const int boxW = 80;
     const int boxH = 16;
-    int top  = ui.centerTop(boxH);
+    int top = ui.centerTop(boxH);
     int left = ui.centerLeft(boxW);
 
     ui.drawBox(top, left, boxH, boxW);
-    ui.printCenteredInBoxColor(top + 1,left,boxW,Color::Yellow, "THEM SAN");
+    ui.printCenteredInBoxColor(top + 1, left, boxW, Color::Yellow, "THEM SAN");
 
-    ui.printAtColor(top + 3, left + 3,Color::Cyan, "ID san   : ");
-    ui.printAtColor(top + 5, left + 3,Color::Cyan, "Ten san  : ");
-    ui.printAtColor(top + 7, left + 3,Color::Cyan, "Gia      : ");
-    ui.printAtColor(top + 9, left + 3,Color::Cyan, "Loai san (5/7/11) : ");
+    ui.printAtColor(top + 3, left + 3, Color::Cyan, "ID san   : ");
+    ui.printAtColor(top + 5, left + 3, Color::Cyan, "Ten san  : ");
+    ui.printAtColor(top + 7, left + 3, Color::Cyan, "Gia      : ");
+    ui.printAtColor(top + 9, left + 3, Color::Cyan, "Loai san (5/7/11) : ");
 
     PitchFormInput in{};
 
@@ -365,24 +372,25 @@ PitchFormInput MenuView::showCreatePitchForm() const {
     return in;
 }
 
-// Cập nhật 
-UpdatePitchInput MenuView::showUpdatePitchForm() const {
+// Cập nhật
+UpdatePitchInput MenuView::showUpdatePitchForm() const
+{
     TerminalUI ui;
     ui.init();
     ui.clear();
 
     const int boxW = 85;
     const int boxH = 18;
-    int top  = ui.centerTop(boxH);
+    int top = ui.centerTop(boxH);
     int left = ui.centerLeft(boxW);
 
     ui.drawBox(top, left, boxH, boxW);
-    ui.printCenteredInBoxColor(top + 1,left,boxW,Color::Yellow, "SUA SAN");
+    ui.printCenteredInBoxColor(top + 1, left, boxW, Color::Yellow, "SUA SAN");
 
-    ui.printAtColor(top + 3, left + 3,Color::Cyan, "ID san can sua        : ");
-    ui.printAtColor(top + 5, left + 3,Color::Cyan, "Ten moi (bo trong=giu): ");
-    ui.printAtColor(top + 7, left + 3,Color::Cyan, "Gia moi (0=giu)       : ");
-    ui.printAtColor(top + 9, left + 3,Color::Cyan, "Loai moi (0=giu)      : ");
+    ui.printAtColor(top + 3, left + 3, Color::Cyan, "ID san can sua        : ");
+    ui.printAtColor(top + 5, left + 3, Color::Cyan, "Ten moi (bo trong=giu): ");
+    ui.printAtColor(top + 7, left + 3, Color::Cyan, "Gia moi (0=giu)       : ");
+    ui.printAtColor(top + 9, left + 3, Color::Cyan, "Loai moi (0=giu)      : ");
 
     UpdatePitchInput in{};
     // ID
@@ -409,28 +417,29 @@ UpdatePitchInput MenuView::showUpdatePitchForm() const {
     return in;
 }
 
-// Xóa Sân 
-std::pair<int, bool> MenuView::showDeletePitchForm() const {
+// Xóa Sân
+std::pair<int, bool> MenuView::showDeletePitchForm() const
+{
     TerminalUI ui;
     ui.init();
     ui.clear();
 
     const int boxW = 75;
     const int boxH = 14;
-    int top  = ui.centerTop(boxH);
+    int top = ui.centerTop(boxH);
     int left = ui.centerLeft(boxW);
 
     ui.drawBox(top, left, boxH, boxW);
-    ui.printCenteredInBoxColor(top + 1,left,boxW,Color::Yellow, "XOA SAN");
+    ui.printCenteredInBoxColor(top + 1, left, boxW, Color::Yellow, "XOA SAN");
 
-    ui.printAtColor(top + 4, left + 3, Color::Cyan,"Nhap ID san muon xoa : ");
+    ui.printAtColor(top + 4, left + 3, Color::Cyan, "Nhap ID san muon xoa : ");
 
     int id;
     ui.moveCursor(top + 4, left + 27);
     std::cin >> id;
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-    ui.printAtColor(top + 6, left + 3,Color::Cyan ,"Ban chac chan muon xoa? (Y/N) : ");
+    ui.printAtColor(top + 6, left + 3, Color::Cyan, "Ban chac chan muon xoa? (Y/N) : ");
 
     char yn;
     ui.moveCursor(top + 6, left + 38);
@@ -446,21 +455,22 @@ std::pair<int, bool> MenuView::showDeletePitchForm() const {
 }
 
 // Đặt sân offline
-OfflineBookingInput MenuView::showOfflineBookingForm() const {
+OfflineBookingInput MenuView::showOfflineBookingForm() const
+{
     TerminalUI ui;
     ui.init();
     ui.clear();
 
     const int boxW = 85;
     const int boxH = 14;
-    int top  = ui.centerTop(boxH);
+    int top = ui.centerTop(boxH);
     int left = ui.centerLeft(boxW);
 
     ui.drawBox(top, left, boxH, boxW);
-    ui.printCenteredInBoxColor(top + 1,left,boxW,Color::Yellow, "DAT SAN OFFLINE TAI QUAY");
+    ui.printCenteredInBoxColor(top + 1, left, boxW, Color::Yellow, "DAT SAN OFFLINE TAI QUAY");
 
-    ui.printAtColor(top + 4, left + 3,Color::Cyan ,"ID san              : ");
-    ui.printAtColor(top + 6, left + 3,Color::Cyan,"Ten khach (bo trong) : ");
+    ui.printAtColor(top + 4, left + 3, Color::Cyan, "ID san              : ");
+    ui.printAtColor(top + 6, left + 3, Color::Cyan, "Ten khach (bo trong) : ");
 
     OfflineBookingInput in{};
 
@@ -477,77 +487,68 @@ OfflineBookingInput MenuView::showOfflineBookingForm() const {
     return in;
 }
 
-// Hàm tách dòng cho update 
-static std::vector<std::string> splitLines(const std::string& s) {
-    std::vector<std::string> lines;
-    std::string cur;
-    for (char c : s) {
-        if (c == '\r') continue;          // bỏ CR nếu có
-        if (c == '\n') { lines.push_back(cur); cur.clear(); }
-        else cur.push_back(c);
-    }
-    lines.push_back(cur);
-    return lines;
-}
-void MenuView::showMessageBox(const std::string& title,
-                              const std::vector<std::string>& lines,
-                              Color color) const {
+// Show ra đoạn văn bản
+void MenuView::showMessageBox(const std::string &title,const std::vector<std::string> &lines,Color color) const
+{
     TerminalUI ui;
     ui.init();
     ui.clear();
 
     const int boxW = 150;
     const int boxH = 20;
-    int top  = ui.centerTop(boxH);
+    int top = ui.centerTop(boxH);
     int left = ui.centerLeft(boxW);
 
     ui.drawBox(top, left, boxH, boxW);
-    ui.printCenteredInBoxColor(top + 1,left,boxW, Color::Yellow,title);
+    ui.printCenteredInBoxColor(top + 1, left, boxW, Color::Yellow, title);
 
     int r = top + 4;
-for (const auto& s : lines) {
-    auto parts = splitLines(s);               // tách theo '\n'
-    for (const auto& oneLine : parts) {
-        ui.printAtColor(r++, left + 3, color, oneLine);   // ✅ in theo màu  // mỗi lần in 1 dòng, không có '\n'
-        if (r >= top + boxH - 3) break;
+    for (const auto &s : lines)
+    {
+        auto parts = MenuHelper::splitLines(s);
+        for (const auto &oneLine : parts)
+        {
+            ui.printAtColor(r++, left + 3, color, oneLine); // ✅ in theo màu  // mỗi lần in 1 dòng, không có '\n'
+            if (r >= top + boxH - 3)
+                break;
+        }
+        if (r >= top + boxH - 3)
+            break;
     }
-    if (r >= top + boxH - 3) break;
-}
 
     ui.printAt(top + boxH - 2, left + 3, "Nhan ENTER de quay lai...");
     ui.moveCursor(top + boxH - 2, left + 3 + (int)std::string("Nhan ENTER de quay lai...").size());
 }
 
-
 // Danh Sách chưa tính tiền
-void MenuView::showUnpaidBookingsScreen(const std::vector<Booking>& bookings,const std::vector<Pitch>& pitches) const
+void MenuView::showUnpaidBookingsScreen(const std::vector<Booking> &bookings, const std::vector<Pitch> &pitches) const
 {
     TerminalUI ui;
     ui.init();
     ui.clear();
 
-    const int boxW = 125;
-    const int boxH = 24;
-    int top  = ui.centerTop(boxH);
-    int left = ui.centerLeft(boxW);
+    const int boxW = 125; const int boxH = 24;
+    int top = ui.centerTop(boxH); int left = ui.centerLeft(boxW);
 
     ui.drawBox(top, left, boxH, boxW);
-    ui.printCenteredInBoxColor(top + 1,left,boxW,Color::Yellow, "DANH SACH LICH DAT CHUA TINH TIEN");
+    ui.printCenteredInBoxColor(top + 1, left, boxW, Color::Yellow, "DANH SACH LICH DAT CHUA TINH TIEN");
 
-    const int marginL = 3;
-    const int marginR = 3;
-    const int gap     = 3;
+    const int marginL = 3; const int marginR = 3; const int gap = 3;
 
-    const int innerW   = boxW - 2;
+    const int innerW = boxW - 2;
     const int contentW = innerW - marginL - marginR;
 
-    auto cut = [](const std::string& s, int w) {
-        if ((int)s.size() <= w) return s;
-        if (w <= 3) return s.substr(0, w);
+    auto cut = [](const std::string &s, int w)
+    {
+        if ((int)s.size() <= w)
+            return s;
+        if (w <= 3)
+            return s.substr(0, w);
         return s.substr(0, w - 3) + "...";
     };
 
-    auto printRow = [&](int r, const std::string& rowText) {
+    auto printRow = [&](int r, const std::string &rowText)
+    {
         std::string line = std::string(marginL, ' ') + rowText;
 
         if ((int)line.size() < marginL + contentW)
@@ -555,8 +556,10 @@ void MenuView::showUnpaidBookingsScreen(const std::vector<Booking>& bookings,con
 
         line += std::string(marginR, ' ');
 
-        if ((int)line.size() < innerW) line += std::string(innerW - line.size(), ' ');
-        if ((int)line.size() > innerW) line = line.substr(0, innerW);
+        if ((int)line.size() < innerW)
+            line += std::string(innerW - line.size(), ' ');
+        if ((int)line.size() > innerW)
+            line = line.substr(0, innerW);
 
         ui.printAt(r, left + 1, line);
     };
@@ -568,15 +571,15 @@ void MenuView::showUnpaidBookingsScreen(const std::vector<Booking>& bookings,con
     const int cols = 7;
     const int gapsW = gap * (cols - 1);
     int base = (contentW - gapsW) / cols;
-    int rem  = (contentW - gapsW) % cols;
+    int rem = (contentW - gapsW) % cols;
 
-    int wBID   = base + (rem > 0 ? 1 : 0);
-    int wSAN   = base + (rem > 1 ? 1 : 0);
-    int wPID   = base + (rem > 2 ? 1 : 0);
-    int wKIEU  = base + (rem > 3 ? 1 : 0);
+    int wBID = base + (rem > 0 ? 1 : 0);
+    int wSAN = base + (rem > 1 ? 1 : 0);
+    int wPID = base + (rem > 2 ? 1 : 0);
+    int wKIEU = base + (rem > 3 ? 1 : 0);
     int wSTART = base + (rem > 4 ? 1 : 0);
     int wKHACH = base + (rem > 5 ? 1 : 0);
-    int wTONG  = base;
+    int wTONG = base;
 
     int row = top + 4;
 
@@ -584,13 +587,13 @@ void MenuView::showUnpaidBookingsScreen(const std::vector<Booking>& bookings,con
     {
         std::ostringstream oss;
         oss << std::left
-            << std::setw(wBID)   << "BID"      << std::string(gap, ' ')
-            << std::setw(wSAN)   << "SAN"      << std::string(gap, ' ')
-            << std::setw(wPID)   << "PITCH ID" << std::string(gap, ' ')
-            << std::setw(wKIEU)  << "KIEU"     << std::string(gap, ' ')
-            << std::setw(wSTART) << "BAT DAU"  << std::string(gap, ' ')
-            << std::setw(wKHACH) << "KHACH"    << std::string(gap, ' ')
-            << std::setw(wTONG)  << "TONG";
+            << std::setw(wBID) << "BID" << std::string(gap, ' ')
+            << std::setw(wSAN) << "SAN" << std::string(gap, ' ')
+            << std::setw(wPID) << "PITCH ID" << std::string(gap, ' ')
+            << std::setw(wKIEU) << "KIEU" << std::string(gap, ' ')
+            << std::setw(wSTART) << "BAT DAU" << std::string(gap, ' ')
+            << std::setw(wKHACH) << "KHACH" << std::string(gap, ' ')
+            << std::setw(wTONG) << "TONG";
         printRow(row++, oss.str());
         printRow(row++, std::string(contentW, '-'));
     }
@@ -598,50 +601,55 @@ void MenuView::showUnpaidBookingsScreen(const std::vector<Booking>& bookings,con
     // BODY
     int printed = 0;
 
-    for (const auto& b : bookings)
+    for (const auto &b : bookings)
     {
         // ✅ CHUA TINH TIEN = Active
         if (b.getStatus() != BookingStatus::Active || b.getTotalAmount() != 0.0)
-    continue;
-
+            continue;
 
         int pitchId = b.getPitchId();
 
         // tìm tên sân
         std::string pitchName = "N/A";
-        for (const auto& p : pitches) {
-            if (p.getId() == pitchId) { pitchName = p.getName(); break; }
+        for (const auto &p : pitches)
+        {
+            if (p.getId() == pitchId)
+            {
+                pitchName = p.getName();
+                break;
+            }
         }
 
         // KIEU: OFFLINE nếu timeSlot rỗng
         std::string type = b.getTimeSlot().empty() ? "OFFLINE" : "ONLINE";
 
         std::string start = b.getTimeSlot().empty()
-                  ? b.getStartTime()
-                  : b.getTimeSlot();   // ONLINE hiển thị TimeSlot
-        std::string customer= b.getCustomerUsername();
+                                ? b.getStartTime()
+                                : b.getTimeSlot(); // ONLINE hiển thị TimeSlot
+        std::string customer = b.getCustomerUsername();
 
         long long total = (long long)b.getTotalAmount();
 
         std::ostringstream oss;
         oss << std::left
-            << std::setw(wBID)   << b.getId()                     << std::string(gap, ' ')
-            << std::setw(wSAN)   << cut(pitchName, wSAN)          << std::string(gap, ' ')
-            << std::setw(wPID)   << pitchId                      << std::string(gap, ' ')
-            << std::setw(wKIEU)  << type                         << std::string(gap, ' ')
-            << std::setw(wSTART) << cut(start, wSTART)            << std::string(gap, ' ')
-            << std::setw(wKHACH) << cut(customer, wKHACH)         << std::string(gap, ' ')
-            << std::setw(wTONG)  << total;
+            << std::setw(wBID) << b.getId() << std::string(gap, ' ')
+            << std::setw(wSAN) << cut(pitchName, wSAN) << std::string(gap, ' ')
+            << std::setw(wPID) << pitchId << std::string(gap, ' ')
+            << std::setw(wKIEU) << type << std::string(gap, ' ')
+            << std::setw(wSTART) << cut(start, wSTART) << std::string(gap, ' ')
+            << std::setw(wKHACH) << cut(customer, wKHACH) << std::string(gap, ' ')
+            << std::setw(wTONG) << total;
 
         printRow(row++, oss.str());
 
-        
         printed++;
 
-        if (row >= top + boxH - 3) break;
+        if (row >= top + boxH - 3)
+            break;
     }
 
-    if (printed == 0) {
+    if (printed == 0)
+    {
         printRow(row++, "Khong co lich dat CHUA tinh tien.");
     }
 
@@ -650,39 +658,41 @@ void MenuView::showUnpaidBookingsScreen(const std::vector<Booking>& bookings,con
     ui.moveCursor(top + boxH - 2, left + 1 + marginL + (int)std::string("Nhan ENTER de quay lai...").size());
 }
 
-// tính tiền 
-int MenuView::showCheckoutChoosePitchForm() const {
-    TerminalUI ui; ui.init(); ui.clear();
-    const int boxW=75, boxH=12;
-    int top=ui.centerTop(boxH), left=ui.centerLeft(boxW);
-    ui.drawBox(top,left,boxH,boxW);
-    ui.printCenteredInBoxColor(top + 1,left,boxW,Color::Yellow, "TINH TIEN SAN");
-    ui.printAtColor(top+4,left+3,Color::Cyan,"Nhap ID san can tinh tien: ");
+// tính tiền
+int MenuView::showCheckoutChoosePitchForm() const
+{
+    TerminalUI ui;
+    ui.init();
+    ui.clear();
+    const int boxW = 75, boxH = 12;
+    int top = ui.centerTop(boxH), left = ui.centerLeft(boxW);
+    ui.drawBox(top, left, boxH, boxW);
+    ui.printCenteredInBoxColor(top + 1, left, boxW, Color::Yellow, "TINH TIEN SAN");
+    ui.printAtColor(top + 4, left + 3, Color::Cyan, "Nhap ID san can tinh tien: ");
     int pitchId;
-    ui.moveCursor(top+4,left+31);
+    ui.moveCursor(top + 4, left + 31);
     std::cin >> pitchId;
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    ui.printAt(top+boxH-2,left+3,"Nhan ENTER de tiep tuc...");
-    ui.moveCursor(top+boxH-2,left+3+(int)std::string("Nhan ENTER de tiep tuc...").size());
+    ui.printAt(top + boxH - 2, left + 3, "Nhan ENTER de tiep tuc...");
+    ui.moveCursor(top + boxH - 2, left + 3 + (int)std::string("Nhan ENTER de tiep tuc...").size());
     return pitchId;
 }
 
-int MenuView::showCheckoutChooseBookingForm() const {
-    TerminalUI ui; ui.init(); ui.clear();
-    const int boxW=75, boxH=12;
-    int top=ui.centerTop(boxH), left=ui.centerLeft(boxW);
-    ui.drawBox(top,left,boxH,boxW);
-    ui.printCenteredInBoxColor(top+1,left,boxW,Color::Yellow,"CHON BOOKING DE TINH TIEN");
-    ui.printAtColor(top+4,left+3,Color::Cyan,"Nhap Booking ID can tinh tien: ");
+int MenuView::showCheckoutChooseBookingForm() const
+{
+    TerminalUI ui;
+    ui.init();
+    ui.clear();
+    const int boxW = 75, boxH = 12;
+    int top = ui.centerTop(boxH), left = ui.centerLeft(boxW);
+    ui.drawBox(top, left, boxH, boxW);
+    ui.printCenteredInBoxColor(top + 1, left, boxW, Color::Yellow, "CHON BOOKING DE TINH TIEN");
+    ui.printAtColor(top + 4, left + 3, Color::Cyan, "Nhap Booking ID can tinh tien: ");
     int bookingId;
-    ui.moveCursor(top+4,left+34);
+    ui.moveCursor(top + 4, left + 34);
     std::cin >> bookingId;
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    ui.printAt(top+boxH-2,left+3,"Nhan ENTER de tiep tuc...");
-    ui.moveCursor(top+boxH-2,left+3+(int)std::string("Nhan ENTER de tiep tuc...").size());
+    ui.printAt(top + boxH - 2, left + 3, "Nhan ENTER de tiep tuc...");
+    ui.moveCursor(top + boxH - 2, left + 3 + (int)std::string("Nhan ENTER de tiep tuc...").size());
     return bookingId;
 }
-
-
-
-

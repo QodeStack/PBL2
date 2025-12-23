@@ -1,96 +1,17 @@
 #include "AdminController.h"
 #include <iostream>
-#include <limits> 
-#include <chrono> // Thư viện dùng để set thời gian
-#include <ctime> // Thư viện dùng để set thời gian
-#include <iomanip> //Thư viện dùng để set thời gian
-#include <sstream> //Thư viện dùng để set thời gian
-
-
-using std::cin;
-using std::cout;
-using std::string;
-
-// Hàm lấy thời gian hiện tại dạng "YYYY-MM-DD HH:MM"
-static std::string getCurrentTimeString()
-{
-    auto now = std::chrono::system_clock::now();
-    std::time_t tt = std::chrono::system_clock::to_time_t(now);
-    std::tm localTm{};
-#ifdef _WIN32
-    localtime_s(&localTm, &tt);
-#else
-    localtime_r(&tt, &localTm);
-#endif
-
-    std::ostringstream oss;
-    oss << std::put_time(&localTm, "%Y-%m-%d %H:%M");
-    return oss.str();
-}
-
-// Hàm parse "YYYY-MM-DD HH:MM" thành time_t để tính toán thời gian chơi ( chuyển từ chuỗi thành số )
-static bool parseDateTime(const std::string &s, std::tm &outTm)
-{
-    std::istringstream iss(s);
-    iss >> std::get_time(&outTm, "%Y-%m-%d %H:%M");
-    return !iss.fail();
-}
-
-// Tính số giờ giữa 2 chuỗi datetime
-static double diffHours(const std::string &start, const std::string &end)
-{
-    std::tm tmStart{}, tmEnd{};
-    if (!parseDateTime(start, tmStart) || !parseDateTime(end, tmEnd))
-    {
-        return 0.0;
-    }
-
-    std::time_t tStart = std::mktime(&tmStart);
-    std::time_t tEnd = std::mktime(&tmEnd);
-    if (tEnd <= tStart)
-        return 0.0;
-
-    double seconds = std::difftime(tEnd, tStart);
-    return seconds / 3600.0;
-}
-
-// Tính số giờ từ timeSlot online "2025-12-01 18:00-20:00"
-static double hoursFromTimeSlot(const std::string &timeSlot)
-{
-    // Format: "YYYY-MM-DD HH:MM-HH:MM"
-    // tách thành: date = "YYYY-MM-DD", start = "HH:MM", end = "HH:MM"
-    std::string datePart, timeRange;
-    std::istringstream iss(timeSlot);
-    if (!(iss >> datePart >> timeRange))
-    {
-        return 0.0;
-    }
-
-    auto pos = timeRange.find('-');
-    if (pos == std::string::npos)
-        return 0.0;
-
-    std::string startTime = timeRange.substr(0, pos); // "HH:MM"
-    std::string endTime = timeRange.substr(pos + 1);  // "HH:MM"
-
-    std::string fullStart = datePart + " " + startTime;
-    std::string fullEnd = datePart + " " + endTime;
-
-    return diffHours(fullStart, fullEnd);
-}
-
+#include <limits>
+#include "../helpers/DateTimeHelper.h"
 
 // Xử lí : việc tạo sân ( kiểm tra logic )
+
 bool AdminController::createPitch(std::vector<Pitch> &pitches,int id, const std::string &name,double price, int size,std::string &outMsg)
 {
-    // 1) validate size (y hệt bản cũ)
     if (size != 5 && size != 7 && size != 11)
     {
         outMsg = "Loai san khong hop le! Chi chap nhan 5, 7, 11.";
         return false;
     }
-
-    // 2) check trùng ID (y hệt bản cũ)
     for (const auto &p : pitches)
     {
         if (p.getId() == id)
@@ -99,8 +20,7 @@ bool AdminController::createPitch(std::vector<Pitch> &pitches,int id, const std:
             return false;
         }
     }
-
-    // 3) thêm sân
+    // Nếu không bị sai 2 điều kiện trên thì thêm sân
     pitches.emplace_back(id, name, price, size);
     outMsg = "Them san thanh cong!";
     return true;
@@ -113,7 +33,6 @@ bool AdminController::updatePitch(std::vector<Pitch> &pitches,int id,const std::
         outMsg = "Chua co san nao de sua.";
         return false;
     }
-
     for (auto &p : pitches)
     {
         if (p.getId() != id)
@@ -156,7 +75,6 @@ bool AdminController::updatePitch(std::vector<Pitch> &pitches,int id,const std::
         {
             oss << "Loai san khong hop le, giu nguyen loai san cu.\n";
         }
-
         // In thông tin mới (giống bản cũ)
         oss << "\nCap nhat thanh cong!\n";
         oss << "Thong tin moi:\n";
@@ -168,7 +86,6 @@ bool AdminController::updatePitch(std::vector<Pitch> &pitches,int id,const std::
         outMsg = oss.str();
         return true;
     }
-
     outMsg = "Khong tim thay san.";
     return false;
 }
@@ -180,10 +97,10 @@ bool AdminController::deletePitchById(std::vector<Pitch> &pitches, int id)
         if (it->getId() == id)
         {
             pitches.erase(it);
-            return true; // xóa thành công
+            return true; 
         }
     }
-    return false; // không tìm thấy
+    return false; 
 }
 
 bool AdminController::bookPitchOffline(const std::vector<Pitch> &pitches,std::vector<Booking> &bookings,int pitchId,const std::string &customerNameInput,std::string &outMsg)
@@ -193,7 +110,6 @@ bool AdminController::bookPitchOffline(const std::vector<Pitch> &pitches,std::ve
         outMsg = "Chua co san nao trong he thong.";
         return false;
     }
-
     // tìm sân
     const Pitch *selectedPitch = nullptr;
     for (const auto &p : pitches)
@@ -216,11 +132,10 @@ bool AdminController::bookPitchOffline(const std::vector<Pitch> &pitches,std::ve
     if (customerName.empty())
         customerName = "OFFLINE";
     // start time hiện tại
-    std::string start = getCurrentTimeString();
+    std::string start = DateTimeHelper::getCurrentTimeString();
     // tạo booking offline (timeSlot rỗng, endTime rỗng, Active, total=0)
     bookings.emplace_back(
-        pitchId,               // pitchId
-        customerName,          // customer
+        pitchId,customerName,          
         "",                    // timeSlot (offline)
         start,                 // startTime
         "",                    // endTime
@@ -309,15 +224,15 @@ bool AdminController::checkoutPitch(std::vector<Pitch>& pitches,std::vector<Book
 
     // 3) tính tiền Online/Offline (y hệt code cũ)
     if (!target->getTimeSlot().empty()) {
-        hours = hoursFromTimeSlot(target->getTimeSlot());
+        hours = DateTimeHelper::hoursFromTimeSlot(target->getTimeSlot());
         if (hours <= 0) { outBillMsg = "Khong the tinh duoc thoi gian tu timeSlot."; return false; }
         amount = hours * pitchPtr->getPrice();
     } else {
         std::string start = target->getStartTime();
-        std::string end = getCurrentTimeString();
+        std::string end = DateTimeHelper::getCurrentTimeString();
         if (start.empty()) { outBillMsg = "Booking offline khong co startTime hop le."; return false; }
 
-        hours = diffHours(start, end);
+        hours = DateTimeHelper::diffHours(start, end);
         if (hours <= 0) { outBillMsg = "Thoi gian choi <= 0, kiem tra lai."; return false; }
 
         amount = hours * pitchPtr->getPrice();

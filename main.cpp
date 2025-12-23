@@ -10,6 +10,7 @@
 #include "views/MenuView.h"
 #include "storage/DataStorage.h"
 #include "views/TerminalUI.h"
+#include "./helpers/MenuHelper.h"
 int main()
 {
     std::vector<Pitch> pitches;
@@ -112,7 +113,7 @@ int main()
                 {
                 case 1:
                 {
-                    view.showPitchesScreen(pitches); // ✅ UI ra giữa
+                    view.showPitchesScreen(PitchSort::sortedById(pitches));
                     view.pause();
                     break;
                 }
