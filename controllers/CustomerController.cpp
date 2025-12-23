@@ -7,7 +7,6 @@
 #include "../helpers/Table4ColsHelper.h"
 #include "../helpers/MenuHelper.h"
 
-
 void CustomerController::viewAllPitches(const std::vector<Pitch> &pitches) const
 {
     MenuView view;
@@ -86,8 +85,11 @@ void CustomerController::viewFreePitches(const std::vector<Pitch> &pitches,
                 break;
             }
         }
-        if (!occupied)
-            freeList.push_back(&p);
+        if (!occupied)freeList.push_back(&p);
+        std::sort(freeList.begin(), freeList.end(),
+          [](const Pitch* a, const Pitch* b) {
+              return a->getId() < b->getId();
+          }); 
     }
 
     // ===== (3) Render kết quả UI bảng 4 cột cách đều =====
@@ -115,44 +117,14 @@ void CustomerController::viewFreePitches(const std::vector<Pitch> &pitches,
     int colStart = innerLeft + 1;
     int usableW = innerW - 2;
 
-    // 4 cột cách đều nhau
-    const int sepTotal = 3 * 3; // " | " * 3
-    int contentW = usableW - sepTotal;
-    if (contentW < 20)
-        contentW = 20;
+    // Helper Table4ColsHelper
+    auto widths = Table4::calcWidths(usableW);
 
-    int base = contentW / 4;
-    int rem = contentW % 4;
-
-    int wId = base + (rem > 0 ? 1 : 0);
-    int wName = base + (rem > 1 ? 1 : 0);
-    int wPrice = base + (rem > 2 ? 1 : 0);
-    int wSize = base;
-
-    auto pad = [](const std::string &s, int w)
+    auto printRow = [&](int r,const std::string &id,const std::string &name,const std::string &price, const std::string &size)
     {
-        if ((int)s.size() >= w)
-            return s.substr(0, w);
-        return s + std::string(w - (int)s.size(), ' ');
+        ui.printAt(r, colStart, Table4::buildRow(ui, widths, usableW, id, name, price, size));
     };
-
-    auto printRow = [&](int r,
-                        const std::string &id,
-                        const std::string &name,
-                        const std::string &price,
-                        const std::string &size)
-    {
-        std::string sId = pad(ui.fitText(id, wId), wId);
-        std::string sName = pad(ui.fitText(name, wName), wName);
-        std::string sPrice = pad(ui.fitText(price, wPrice), wPrice);
-        std::string sSize = pad(ui.fitText(size, wSize), wSize);
-
-        std::string line = sId + " | " + sName + " | " + sPrice + " | " + sSize;
-        if ((int)line.size() > usableW)
-            line = line.substr(0, usableW);
-
-        ui.printAt(r, colStart, line);
-    };
+    // End helper
 
     int row = top + 3;
     printRow(row, "ID", "Ten san", "Gia", "Loai");

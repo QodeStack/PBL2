@@ -8,7 +8,7 @@
 #include "../helpers/Table4ColsHelper.h"
 
 // Hàm Này dùng để dừng lại màn hình để người dùng xem , và chuyển sang giao diện tiếp theo khi ENTER
-void MenuView::pause() const{ MenuHelper::pause(); }
+void MenuView::pause() const { MenuHelper::pause(); }
 
 // đọc choice an toàn
 static int readChoiceInBox(TerminalUI &ui, int inputRow, int inputCol, int msgRow, int msgCol, int minChoice, int maxChoice)
@@ -75,7 +75,7 @@ int MenuView::showMainMenu() const
     ui.moveCursor(top + 7, left + 9);
 
     // báo lỗi ngay trong khung (dòng dưới "Chon:")
-    return readChoiceInBox(ui,top + 7, left + 9,top + 8, left + 3,0, 2);            
+    return readChoiceInBox(ui, top + 7, left + 9, top + 8, left + 3, 0, 2);
 }
 
 int MenuView::showAdminMenu() const
@@ -270,41 +270,22 @@ void MenuView::showPitchesScreen(const std::vector<Pitch> &pitches) const
     // ✅ đường gạch ngang dưới title (giờ đã có printRow + contentW)
     ui.printAt(top + 2, left + 1, std::string(innerW, '-'));
 
-    // ====== ĐỘ RỘNG CỘT (4 cột bằng nhau + xử lý phần dư) ======
-    int base = (contentW - gapsW) / 4;
-    int rem = (contentW - gapsW) % 4;
-    int idW = base + (rem > 0 ? 1 : 0);
-    int nameW = base + (rem > 1 ? 1 : 0);
-    int priceW = base + (rem > 2 ? 1 : 0);
-    int typeW = base;
+    int row = top + 4;
 
-    if (nameW < 15)
-        nameW = 15;
+    // Table4 tính theo usableW (ở đây usableW chính là contentW vì bạn đã chừa margin)
+    auto widths = Table4::calcWidths(contentW);
 
-    auto cut = [](const std::string &s, int w)
+    auto build = [&](const std::string &c1, const std::string &c2, const std::string &c3, const std::string &c4)
     {
-        if ((int)s.size() <= w)
-            return s;
-        if (w <= 3)
-            return s.substr(0, w);
-        return s.substr(0, w - 3) + "...";
+        // Table4 tạo line dạng: c1 | c2 | c3 | c4 (đã fitText + pad)
+        return Table4::buildRow(ui, widths, contentW, c1, c2, c3, c4);
     };
 
-    int row = top + 4; // ✅ bắt đầu nội dung dưới đường title
+    // ===== HEADER =====
+    printRow(row++, build("ID", "TEN SAN", "GIA", "LOAI"));
+    printRow(row++, std::string(contentW, '-'));
 
-    // ====== HEADER ======
-    {
-        std::ostringstream oss;
-        oss << std::left
-            << std::setw(idW) << "ID" << std::string(gap, ' ')
-            << std::setw(nameW) << "TEN SAN" << std::string(gap, ' ')
-            << std::setw(priceW) << "GIA" << std::string(gap, ' ')
-            << std::setw(typeW) << "LOAI";
-        printRow(row++, oss.str());
-        printRow(row++, std::string(contentW, '-'));
-    }
-
-    // ====== BODY ======
+    // ===== BODY =====
     if (pitches.empty())
     {
         printRow(row++, "Chua co san nao.");
@@ -313,14 +294,12 @@ void MenuView::showPitchesScreen(const std::vector<Pitch> &pitches) const
     {
         for (const auto &p : pitches)
         {
-            std::ostringstream oss;
-            oss << std::left
-                << std::setw(idW) << p.getId() << std::string(gap, ' ')
-                << std::setw(nameW) << cut(p.getName(), nameW) << std::string(gap, ' ')
-                << std::setw(priceW) << (long long)p.getPrice() << std::string(gap, ' ')
-                << std::setw(typeW) << (std::to_string(p.getSize()) + " nguoi");
+            printRow(row++, build(
+                                std::to_string(p.getId()),
+                                p.getName(),
+                                std::to_string((long long)p.getPrice()),
+                                std::to_string(p.getSize()) + " nguoi"));
 
-            printRow(row++, oss.str());
             if (row >= top + boxH - 3)
                 break;
         }
@@ -488,7 +467,7 @@ OfflineBookingInput MenuView::showOfflineBookingForm() const
 }
 
 // Show ra đoạn văn bản
-void MenuView::showMessageBox(const std::string &title,const std::vector<std::string> &lines,Color color) const
+void MenuView::showMessageBox(const std::string &title, const std::vector<std::string> &lines, Color color) const
 {
     TerminalUI ui;
     ui.init();
@@ -527,13 +506,17 @@ void MenuView::showUnpaidBookingsScreen(const std::vector<Booking> &bookings, co
     ui.init();
     ui.clear();
 
-    const int boxW = 125; const int boxH = 24;
-    int top = ui.centerTop(boxH); int left = ui.centerLeft(boxW);
+    const int boxW = 125;
+    const int boxH = 24;
+    int top = ui.centerTop(boxH);
+    int left = ui.centerLeft(boxW);
 
     ui.drawBox(top, left, boxH, boxW);
     ui.printCenteredInBoxColor(top + 1, left, boxW, Color::Yellow, "DANH SACH LICH DAT CHUA TINH TIEN");
 
-    const int marginL = 3; const int marginR = 3; const int gap = 3;
+    const int marginL = 3;
+    const int marginR = 3;
+    const int gap = 3;
 
     const int innerW = boxW - 2;
     const int contentW = innerW - marginL - marginR;
